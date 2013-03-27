@@ -2,145 +2,116 @@
  * gpio.h
  *
  *  Created on: Feb 11,	2013
- *      Author: D. Wassenberg
+ *      Author: daniel@deathbylogic.com
  */
 
-#ifndef GPIO_H_
-#define GPIO_H_
+#ifndef BEAGLEIO_H_
+#define BEAGLEIO_H_
 
-// GPIO Configuration Constants
-enum PIN_MUX {
-	MUX_0	= 0x00,
-	MUX_1	= 0x01,
-	MUX_2	= 0x02,
-	MUX_3	= 0x03,
-	MUX_4	= 0x04,
-	MUX_5	= 0x05,
-	MUX_6	= 0x06,
-	MUX_7	= 0x07
-};
+#include <unistd.h>
+#include "gpio.h"
 
-enum PIN_PULLUP_EN {
-	PULLUP_ENABLED	= 0x00,
-	PULLUP_DISABLED	= 0x08
-};
+// I/O Header Pins
+io_pin P8_pins[46] = {
+	{"GND",			0,		POWER,				NULL,				NULL,			false},
+	{"GND",			0,		POWER,				NULL,				NULL,			false},
+	{"GPIO1_6",		38,		DIGITAL,			"gpmc_ad6",			NULL,			false},
+	{"GPIO1_7",		39,		DIGITAL,			"gpmc_ad7",			NULL,			false},
+	{"GPIO1_2",		34,		DIGITAL,			"gpmc_ad2",			NULL,			false},
+	{"GPIO1_3",		35,		DIGITAL,			"gpmc_ad3",			NULL,			false},
+	{"TIMER4",		66,		DIGITAL,			"gpmc_advn_ale",	NULL,			false},
+	{"TIMER7",		67,		DIGITAL,			"gpmc_oen_ren",		NULL,			false},
+	{"TIMER5",		69,		DIGITAL,			"gpmc_ben0_cle",	NULL,			false},
+	{"TIMER6",		68,		DIGITAL,			"gpmc_wen",			NULL,			false},
+	{"GPIO1_13",	45,		DIGITAL,			"gpmc_ad13",		NULL,			false},
+	{"GPIO1_12",	44,		DIGITAL,			"gpmc_ad12",		NULL,			false},
+	{"EHRPWM2B",	23,		DIGITAL,			"gpmc_ad9",			NULL,			false},
+	{"GPIO0_26",	26,		DIGITAL,			"gpmc_ad10",		NULL,			false},
+	{"GPIO1_15",	47,		DIGITAL,			"gpmc_ad15",		NULL,			false},
+	{"GPIO1_14",	46,		DIGITAL,			"gpmc_ad14",		NULL,			false},
+	{"GPIO0_27",	27,		DIGITAL,			"gpmc_ad11",		NULL,			false},
+	{"GPIO2_1",		65,		DIGITAL,			"gpmc_clk",			NULL,			false},
+	{"EHRPWM2A",	22,		DIGITAL,			"gpmc_ad8",			NULL,			false},
+	{"GPIO1_31",	63,		DIGITAL,			"gpmc_csn2",		NULL,			false},
+	{"GPIO1_30",	62,		DIGITAL,			"gpmc_csn1",		NULL,			false},
+	{"GPIO1_5",		37,		DIGITAL,			"gpmc_ad5",			NULL,			false},
+	{"GPIO1_4",		36,		DIGITAL,			"gpmc_ad4",			NULL,			false},
+	{"GPIO1_1",		33,		DIGITAL,			"gpmc_ad1",			NULL,			false},
+	{"GPIO1_0",		32,		DIGITAL,			"gpmc_ad0",			NULL,			false},
+	{"GPIO1_29",	61,		DIGITAL,			"gpmc_csn0",		NULL,			false},
+	{"GPIO2_22",	86,		DIGITAL,			"lcd_vsync",		NULL,			false},
+	{"GPIO2_24",	88,		DIGITAL,			"lcd_pclk",			NULL,			false},
+	{"GPIO2_23",	87,		DIGITAL,			"lcd_hsync",		NULL,			false},
+	{"GPIO2_25",	89,		DIGITAL,			"lcd_ac_bias_en",	NULL,			false},
+	{"UART5_CTSN",	10,		DIGITAL,			"lcd_data14",		NULL,			false},
+	{"UART5_RTSN",	11,		DIGITAL,			"lcd_data15",		NULL,			false},
+	{"UART4_RTSN",	9,		DIGITAL,			"lcd_data13",		NULL,			false},
+	{"UART3_RTSN",	81,		DIGITAL,			"lcd_data11",		NULL,			false},
+	{"UART4_CTSN",	8,		DIGITAL,			"lcd_data12",		NULL,			false},
+	{"UART3_CTSN",	80,		DIGITAL,			"lcd_data10",		NULL,			false},
+	{"UART5_TXD",	78,		DIGITAL | SERIAL,	"lcd_data8",		"tty5",			false},
+	{"UART5_RXD",	79,		DIGITAL | SERIAL,	"lcd_data9",		"tty5",			false},
+	{"GPIO2_12",	76,		DIGITAL,			"lcd_data6",		NULL,			false},
+	{"GPIO2_13",	77,		DIGITAL,			"lcd_data7",		NULL,			false},
+	{"GPIO2_10",	74,		DIGITAL,			"lcd_data4",		NULL,			false},
+	{"GPIO2_11",	75,		DIGITAL,			"lcd_data5",		NULL,			false},
+	{"GPIO2_8",		72,		DIGITAL,			"lcd_data2",		NULL,			false},
+	{"GPIO2_9",		73,		DIGITAL,			"lcd_data3",		NULL,			false},
+	{"GPIO2_6",		70,		DIGITAL,			"lcd_data0",		NULL,			false},
+	{"GPIO2_7",		71,		DIGITAL,			"lcd_data1",		NULL,			false}};
 
-enum PIN_PULLUP {
-	PULLDOWN	= 0x00,
-	PULLUP		= 0x10
-};
+io_pin P9_pins[46] = {
+	{"GND",			0,		POWER,				NULL,				NULL,			false},
+	{"GND",			0,		POWER,				NULL,				NULL,			false},
+	{"VDD_3V3EXP",	0,		POWER,				NULL,				NULL,			false},
+	{"VDD_3V3EXP",	0,		POWER,				NULL,				NULL,			false},
+	{"VDD_5V",		0,		POWER,				NULL,				NULL,			false},
+	{"VDD_5V",		0,		POWER,				NULL,				NULL,			false},
+	{"SYS_5V",		0,		POWER,				NULL,				NULL,			false},
+	{"SYS_5V",		0,		POWER,				NULL,				NULL,			false},
+	{"PWR_BUT",		0,		SYSTEM,				NULL,				NULL,			false},
+	{"SYS_RESETn",	0,		SYSTEM,				NULL,				NULL,			false},
+	{"UART4_RXD",	30,		DIGITAL | SERIAL,	"gpmc_wait0",		"tty4",			false},
+	{"GPIO1_28",	60,		DIGITAL,			"gpmc_ben1",		NULL,			false},
+	{"UART4_TXD",	31,		DIGITAL | SERIAL,	"gpmc_wpn",			"tty4",			false},
+	{"EHRPWM1A",	50,		DIGITAL | PWM,		"gpmc_a2",			"ehrpwm.1:0",	false},
+	{"GPIO1_16",	48,		DIGITAL,			"gpmc_a0",			NULL,			false},
+	{"EHRPWM1B",	51,		DIGITAL | PWM,		"gpmc_a3",			"ehrpwm.1:1",	false},
+	{"I2C1_SCL",	5,		DIGITAL,			"spi0_cs0",			NULL,			false},
+	{"I2C1_SDA",	4,		DIGITAL,			"spi0_d1",			NULL,			false},
+	{"I2C2_SCL",	13,		DIGITAL,			"uart1_rtsn",		NULL,			false},
+	{"I2C2_SDA",	12,		DIGITAL,			"uart1_ctsn",		NULL,			false},
+	{"UART2_TXD",	3,		DIGITAL | SERIAL,	"spi0_d0",			"tty2",			false},
+	{"UART2_RXD",	2,		DIGITAL | SERIAL,	"spi0_sclk",		"tty2",			false},
+	{"GPIO1_17",	49,		DIGITAL,			"gpmc_a1",			NULL,			false},
+	{"UART1_TXD",	15,		DIGITAL | SERIAL,	"uart1_txd",		"tty1",			false},
+	{"GPIO3_21",	88,		DIGITAL,			"mcasp0_ahclkx",	NULL,			false},
+	{"UART1_RXD",	14,		DIGITAL | SERIAL,	"uart1_rxd",		"tty1",			false},
+	{"GPIO3_19",	86,		DIGITAL,			"mcasp0_fsr",		NULL,			false},
+	{"SPI1_CS0",	84,		DIGITAL,			"mcasp0_ahclkr",	NULL,			false},
+	{"SPI1_D0",		82,		DIGITAL,			"mcasp0_fsx",		NULL,			false},
+	{"SPI1_D1",		116,	DIGITAL,			"mscasp0_axr0", 	NULL,			false},
+	{"SPI1_SCLK",	110,	DIGITAL,			"mcasp0_aclkx",		NULL,			false},
+	{"VDD_ADC",		0,		POWER,				NULL,				NULL,			false},
+	{"AIN4",		4,		ANALOG,				NULL, 				NULL,			false},
+	{"GNDA_ADC",	0,		POWER,				NULL,				NULL,			false},
+	{"AIN6",		6,		ANALOG,				NULL, 				NULL,			false},
+	{"AIN5",		5,		ANALOG,				NULL, 				NULL,			false},
+	{"AIN2",		2,		ANALOG,				NULL, 				NULL,			false},
+	{"AIN3",		3,		ANALOG,				NULL, 				NULL,			false},
+	{"AIN0",		0,		ANALOG,				NULL, 				NULL,			false},
+	{"AIN1",		1,		ANALOG,				NULL, 				NULL,			false},
+	{"CLKOUT2",		20,		DIGITAL,			"xdma_event_intr1",	NULL,			false},
+	{"GPIO0_7",		7,		DIGITAL,			"ecap0_in_pwm0_out",NULL,			false},
+	{"GND",			0,		POWER,				NULL,				NULL,			false},
+	{"GND",			0,		POWER,				NULL,				NULL,			false},
+	{"GND",			0,		POWER,				NULL,				NULL,			false},
+	{"GND",			0,		POWER,				NULL,				NULL,			false}};
 
-enum PIN_DIRECTION {
-	INPUT_PIN	= 0x20,
-	OUTPUT_PIN	= 0x00
-};
+io_pin usr_pins[4] = {
+	{"USR0",		53,		DIGITAL,			"gpmc_a5",			NULL,			false},
+	{"USR1",		54,		DIGITAL,			"gpmc_a6",			NULL,			false},
+	{"USR2",		55,		DIGITAL,			"gpmc_a7",			NULL,			false},
+	{"USR3",		56,		DIGITAL,			"gpmc_a8",			NULL,			false}};
 
-enum PIN_SLEW {
-	FAST_SLEW	= 0x00,
-	SLOW_SLEW	= 0x40
-};
-
-// Other GPIO constants
-enum PIN_VALUE {
-	LOW		= 0,
-	HIGH	= 1
-};
-
-enum PIN_TYPE {
-	DIGITAL		= 0x01,
-	PWM			= 0x02,
-	DIG_PWM		= 0x03,
-	SERIAL		= 0x04,
-	DIG_SER		= 0x05,
-	PWM_SER		= 0x06,
-	DIG_PWM_SER	= 0x07,
-	ANALOG		= 0x08
-};
-
-enum PIN_EDGE {
-	RISING_EDGE		= 0x01,
-	FALLING_EDGE	= 0x02,
-	BOTH_EDGES		= 0x03
-};
-
-#define TRUE	1
-#define FALSE	0
-
-// GPIO Directories
-#define FS_SERIAL_DIR	"/dev/%s"
-#define FS_MUX_DIR		"/sys/kernel/debug/omap_mux/%s"
-#define	FS_VALUE_DIR	"/sys/class/gpio/gpio%d/value"
-#define FS_DIR_DIR		"/sys/class/gpio/gpio%d/direction"
-#define FS_EDGE_DIR		"/sys/class/gpio/gpio%d/edge"
-#define FS_EXPORT_DIR	"/sys/class/gpio/export"
-#define FS_UNEXPORT_DIR	"/sys/class/gpio/unexport"
-
-// Misc Defines
-#define MAX_BUFF	64
-
-// Structures
-typedef struct io_pin {
-	const char		*ID;
-	unsigned int	 pin;
-	unsigned int	 type;
-	const char		*mux;
-	const char		*alt;
-	bool	 		 exported;
-} io_pin;
-
-// Class Definition
-class beagleIO {
-public:
-	beagleIO(io_pin*, int);
-	~beagleIO();
-
-	void digitalSetDirection(unsigned int, PIN_DIRECTION);
-	void digitalSetEdge(unsigned int, PIN_EDGE);
-	void digitalGetValue(unsigned int, bool*);
-	bool digitalGetValue(unsigned int);
-	void digitalSetValue(unsigned int, bool);
-
-	void serialRead();
-	void serialWrite(int, const char*, int size);
-	int serialOpen(unsigned int);
-	void serialClose(int);
-	void serialConfig(unsigned int);
-
-	int analogRead();
-
-	void pwmRun(unsigned int);
-	void pwmStop(unsigned int);
-	void pwmConfig(unsigned int, unsigned int, unsigned int);
-	void pwmSetFreq(unsigned int, unsigned int);
-	void pwmSetDuty(unsigned int, unsigned int);
-
-	void pinSetMode(unsigned int, PIN_MUX, PIN_DIRECTION);
-	void pinSetMode(unsigned int, PIN_MUX, PIN_PULLUP_EN, PIN_PULLUP, PIN_DIRECTION, PIN_SLEW);
-
-private:
-	// Private functions
-	int gpioExport(unsigned int, bool*);
-	int gpioUnexport(unsigned int, bool*);
-
-	int gpioSetDirection(io_pin*, PIN_DIRECTION);
-	int gpioSetEdge(io_pin*, PIN_EDGE);
-
-	int gpioSetValue(io_pin*, bool);
-	int gpioGetValue(io_pin*, bool*);
-
-	int gpioWrite(io_pin *, const char*, int size);
-
-	int gpioSetMode(io_pin*, unsigned int);
-	//int gpioGetMode(io_pin*, unsigned int*);
-
-	int gpioFDOpen(const char*, int);
-	int gpioFDClose(int);
-
-	io_pin *findGPIO(unsigned int, unsigned int);
-
-	// Private variables
-	io_pin *gpio_pins;
-	int 	gpio_count;
-};
-
-#endif /* GPIO_H_ */
+#endif /* BEAGLEIO_H_ */
