@@ -15,7 +15,8 @@ typedef struct io_pin {
 	unsigned int	 type;
 	const char		*mux;
 	const char		*alt;
-	bool	 		 exported;
+	bool			 exported;
+	int				 fd;
 } io_pin;
 
 // GPIO Configuration Constants
@@ -66,6 +67,7 @@ enum PIN_TYPE {
 };
 
 enum PIN_EDGE {
+	NONE			= 0x00,
 	RISING_EDGE		= 0x01,
 	FALLING_EDGE	= 0x02,
 	BOTH_EDGES		= 0x03
@@ -86,55 +88,55 @@ enum PIN_EDGE {
 // Class Definition
 class beagleIO {
 public:
-	beagleIO(io_pin*, int);
-	~beagleIO();
+			beagleIO(io_pin*, int);
+			~beagleIO();
 
 	// Digital Functions
-	void digitalSetDirection(unsigned int, PIN_DIRECTION);
-	void digitalSetEdge(unsigned int, PIN_EDGE);
+	void	digitalSetDirection(unsigned int, PIN_DIRECTION);
+	void	digitalSetEdge(unsigned int, PIN_EDGE);
 
-	void digitalGetValue(unsigned int, bool*);
-	bool digitalGetValue(unsigned int);
-	void digitalSetValue(unsigned int, bool);
+	void	digitalGetValue(unsigned int, bool*);
+	bool	digitalGetValue(unsigned int);
+	void	digitalSetValue(unsigned int, bool);
 
 	// Serial Functions
-	int serialRead(unsigned int, char*, int);
-	void serialWrite(unsigned int, const char*, int);
-	void serialOpen(unsigned int);
-	void serialClose(unsigned int);
-	void serialConfig(unsigned int);
+	int		serialRead(unsigned int, char*, int);
+	void	serialWrite(unsigned int, const char*, int);
+	void	serialOpen(unsigned int);
+	void	serialClose(unsigned int);
+	void	serialConfig(unsigned int);
 
 	// Analog Functions
-	int analogRead(unsigned int);
+	int		analogRead(unsigned int);
 
 	// PWM Functions
-	void pwmRun(unsigned int);
-	void pwmStop(unsigned int);
-	void pwmConfig(unsigned int, unsigned int, unsigned int);
-	void pwmSetFreq(unsigned int, unsigned int);
-	void pwmSetDuty(unsigned int, unsigned int);
+	void	pwmRun(unsigned int);
+	void	pwmStop(unsigned int);
+	void	pwmSetConfig(unsigned int, unsigned int, unsigned int);
+	void	pwmSetFreq(unsigned int, unsigned int);
+	void	pwmSetDuty(unsigned int, unsigned int);
 
-	void pinSetMode(unsigned int, PIN_MUX, PIN_DIRECTION);
-	void pinSetMode(unsigned int, PIN_MUX, PIN_PULLUP_EN, PIN_PULLUP, PIN_DIRECTION, PIN_SLEW);
+	void	pinSetMode(unsigned int, PIN_MUX, PIN_DIRECTION);
+	void	pinSetMode(unsigned int, PIN_MUX, PIN_PULLUP_EN, PIN_PULLUP, PIN_DIRECTION, PIN_SLEW);
 
 private:
 	// Private functions
-	int gpioExport(unsigned int);
-	int gpioUnexport(unsigned int);
+	int		gpioExport(unsigned int);
+	int		gpioUnexport(unsigned int);
 
-	int gpioRead(int, char*);
-	int gpioRead(int, long int*, int);
+	int		gpioRead(int, char*);
+	int		gpioRead(int, long int*, int);
 
-	int gpioWrite(int, const char*, unsigned int);
-	int gpioWrite(int, int);
+	int		gpioWrite(int, const char*, unsigned int);
+	int		gpioWrite(int, int);
 
-	int gpioOpen(const char*, int);
-	int gpioClose(int);
+	int		gpioOpen(const char*, int);
+	int		gpioClose(int);
 
-	bool checkGPIO(unsigned int, unsigned int);
+	bool	checkGPIO(unsigned int, unsigned int);
 
 	// Private variables
-	io_pin *gpio_pins;
+	io_pin	*gpio_pins;
 	int 	gpio_count;
 };
 
