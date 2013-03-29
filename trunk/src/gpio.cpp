@@ -18,8 +18,14 @@ using namespace std;
  * Constructor & Deconstructor
  */
 
-beagleIO::beagleIO(io_pin *pins, int count):gpio_pins( pins ), gpio_count( count ) {
-	// Empty Constructor
+beagleIO::beagleIO(io_pin *pins, int count) {
+	gpio_pins = pins;
+	gpio_count = count;
+
+	for (int i = 0; i < gpio_count; i++) {
+		gpio_pins[i].exported = false;
+		gpio_pins[i].fd = 0;
+	}
 }
 
 beagleIO::~beagleIO() {
@@ -77,7 +83,6 @@ bool beagleIO::digitalGetValue(unsigned int pin) {
 void beagleIO::digitalSetValue(unsigned int pin, bool value) {
 	int fd;
 	char dirBuff[MAX_BUFF];
-	long int tmpValue;
 
 	// Check if pin is in table of pins
 	if (checkGPIO(pin, DIGITAL) == false) {
@@ -98,8 +103,6 @@ void beagleIO::digitalSetValue(unsigned int pin, bool value) {
 
 			// Close the file location
 			gpioClose(fd);
-
-			*value = (bool)tmpValue;
 		}
 	}
 }
@@ -123,7 +126,7 @@ void beagleIO::digitalSetDirection(unsigned int pin, PIN_DIRECTION direction) {
 			fd = gpioOpen(dirBuff, O_WRONLY);
 
 			// Write direction to file
-			switch (PIN_DIRECTION) {
+			switch (direction) {
 			case INPUT_PIN:
 				gpioWrite(fd, "input", 5);
 
@@ -159,7 +162,11 @@ void beagleIO::digitalSetEdge(unsigned int pin, PIN_EDGE edge) {
 			fd = gpioOpen(dirBuff, O_WRONLY);
 
 			// Write direction to file
-			switch (PIN_EDGE) {
+			switch (edge) {
+			case NONE:
+				gpioWrite(fd, "none", 4);
+
+				break;
 			case RISING_EDGE:
 				gpioWrite(fd, "rising", 6);
 
@@ -184,78 +191,124 @@ void beagleIO::digitalSetEdge(unsigned int pin, PIN_EDGE edge) {
  * Serial Functions
  */
 
-void serialRead() {
 
-}
-
-void serialWrite(unsigned int pin, const char *buff, int size) {
-	io_pin *gpio;
-
-	gpio = findGPIO(pin, SERIAL);
+int beagleIO::serialRead(unsigned int pin, char *buf, int count) {
+	int fd;
+	int size;
 
 	// Check if pin is in table of pins
-	if (gpio == NULL) {
-		fprintf(stderr, "Unable to find gpio pin in table");
+	if (checkGPIO(pin, SERIAL) == false) {
+		fprintf(stderr, "Pin %d is a invalid pin or it is not a valid digital I/O.", pin);
+		return 0;
+	} else {
+		if ((fd = gpio_pins[pin - 1].fd) > 0) {
+			// Read from buffer
+			size = gpioRead(fd, buf);
+		}
+	}
+
+	return size;
+}
+
+void beagleIO::serialWrite(unsigned int pin, const char *buf, int count) {
+	int fd;
+
+	// Check if pin is in table of pins
+	if (checkGPIO(pin, SERIAL) == false) {
+		fprintf(stderr, "Pin %d is a invalid pin or it is not a valid digital I/O.", pin);
 		return;
 	} else {
-		// Write string to pin
-		gpioWrite(gpio, buff, size);
+		if ((fd = gpio_pins[pin - 1].fd) > 0) {
+			// Write string to buffer
+			gpioWrite(fd, buf, count);
+		}
 	}
 }
 
-int serialOpen(unsigned int pin) {
+void beagleIO::serialOpen(unsigned int pin) {
+	int fd;
+	char dirBuff[MAX_BUFF];
 
-}
-
-void serialClose(unsigned int pin) {
-
-}
-
-void serialConfig(unsigned int pin) {
-
-}
-
-
-
-void pinSetMode(unsigned int pin, PIN_MUX mode, PIN_DIRECTION direction) {
-	unsigned int omap_mux;
-	io_pin *gpio;
-
-	// Find gpio pin
-	gpio = findGPIO(pin, DIGITAL);
-
-	if (gpio == NULL) {
-		fprintf(stderr, "GPIO Set Mode: Unable to find gpio");
+	// Check if pin is in table of pins
+	if (checkGPIO(pin, SERIAL) == false) {
+		fprintf(stderr, "Pin %d is a invalid pin or it is not a valid digital I/O.", pin);
+		return;
 	} else {
-		// Get the current mode
-		//gpioGetMode(gpio, &omap_mux);
+		snprintf(dirBuff, sizeof(dirBuff), FS_SERIAL_DIR, gpio_pins[pin - 1].alt);
 
-		// Clear Mux bits
-		//omap_mux = omap_mux bitand 0xF8;
+		// Open the file location
+		if ((fd = gpioOpen(dirBuff, O_RDWR | O_NOCTTY | O_NDELAY)) > 0) {
+			gpio_pins[pin - 1].fd = fd;
+		}
+	}
+}
 
-		// Set new Mux bits
+void beagleIO::serialClose(unsigned int pin) {
+	// Check if pin is in table of pins
+	if (checkGPIO(pin, SERIAL) == false) {
+		fprintf(stderr, "Pin %d is a invalid pin or it is not a valid digital I/O.", pin);
+		return;
+	} else {
+		// Close the file location
+		if (gpioClose(gpio_pins[pin - 1].fd) == 0) {
+			gpio_pins[pin - 1].fd = 0;
+		}
+	}
+}
+
+void beagleIO::serialConfig(unsigned int pin) {
+
+}
+
+/*
+ * Set Pin Mux Mode
+ */
+
+void beagleIO::pinSetMode(unsigned int pin, PIN_MUX mode, PIN_DIRECTION direction) {
+	int fd;
+	char dirBuff[MAX_BUFF];
+	unsigned int omap_mux;
+
+	// Check if pin is in table of pins
+	if (checkGPIO(pin, DIGITAL bitor SERIAL bitor PWM) == false) {
+		fprintf(stderr, "Pin %d is a invalid pin or it is not a valid digital I/O.", pin);
+		return;
+	} else {
+		snprintf(dirBuff, sizeof(dirBuff), FS_MUX_DIR, gpio_pins[pin - 1].mux);
+
 		omap_mux = mode bitor direction;
 
-		// Set the new mode
-		gpioSetMode(gpio, omap_mux);
+		// Open the file location
+		fd = gpioOpen(dirBuff, O_WRONLY);
+
+		gpioWrite(fd, omap_mux);
+
+		// Close the file location
+		gpioClose(fd);
 	}
 }
 
-void pinSetMode(unsigned int pin, PIN_MUX mode, PIN_PULLUP_EN pullup_en, PIN_PULLUP pullup, PIN_DIRECTION dir, PIN_SLEW slew) {
+void beagleIO::pinSetMode(unsigned int pin, PIN_MUX mode, PIN_PULLUP_EN pullup_en, PIN_PULLUP pullup, PIN_DIRECTION direction, PIN_SLEW slew) {
+	int fd;
+	char dirBuff[MAX_BUFF];
 	unsigned int omap_mux;
-	io_pin *gpio;
 
-	// Find gpio pin
-	gpio = findGPIO(pin, DIGITAL);
-
-	if (gpio == NULL) {
-		fprintf(stderr, "GPIO Set Mode: Unable to find gpio");
+	// Check if pin is in table of pins
+	if (checkGPIO(pin, DIGITAL bitor SERIAL bitor PWM) == false) {
+		fprintf(stderr, "Pin %d is a invalid pin or it is not a valid digital I/O.", pin);
+		return;
 	} else {
-		// Set new Mux bits
-		omap_mux = mode bitor pullup_en bitor pullup bitor dir bitor slew;
+		snprintf(dirBuff, sizeof(dirBuff), FS_MUX_DIR, gpio_pins[pin - 1].mux);
 
-		// Set the new mode
-		gpioSetMode(gpio, omap_mux);
+		omap_mux = mode bitor pullup_en bitor pullup bitor direction bitor slew;
+
+		// Open the file location
+		fd = gpioOpen(dirBuff, O_WRONLY);
+
+		gpioWrite(fd, omap_mux);
+
+		// Close the file location
+		gpioClose(fd);
 	}
 }
 
@@ -263,6 +316,7 @@ void pinSetMode(unsigned int pin, PIN_MUX mode, PIN_PULLUP_EN pullup_en, PIN_PUL
  * Analog Functions
  */
 
+/*
 int analogRead() {
 
 	return 0;
@@ -287,13 +341,14 @@ void pwmSetFreq(unsigned int, unsigned int) {
 void pwmSetDuty(unsigned int, unsigned int) {
 
 }
+*/
 
 /*
  * GPIO File Access Functions
  */
 
 bool beagleIO::checkGPIO(unsigned int pin, unsigned int type) {
-	 if (gpio_pins[pin - 1].type bitand type > 0) {
+	 if ((gpio_pins[pin - 1].type bitand type) > 0) {
 		 return true;
 	 }
 
