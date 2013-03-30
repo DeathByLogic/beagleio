@@ -1,12 +1,12 @@
 /*
- * gpio.h
+ * beagleGPIO.h
  *
  *  Created on: Mar 24, 2013
  *      Author: daniel@deathbylogic.com
  */
 
-#ifndef GPIO_H_
-#define GPIO_H_
+#ifndef BEAGLEGPIO_H_
+#define BEAGLEGPIO_H_
 
 // Structures
 typedef struct io_pin {
@@ -16,7 +16,6 @@ typedef struct io_pin {
 	const char		*mux;
 	const char		*alt;
 	bool			 exported;
-	int				 fd;
 } io_pin;
 
 // GPIO Configuration Constants
@@ -84,12 +83,13 @@ enum PIN_EDGE {
 #define FS_EDGE_DIR		"/sys/class/gpio/gpio%d/edge"
 #define FS_EXPORT_DIR	"/sys/class/gpio/export"
 #define FS_UNEXPORT_DIR	"/sys/class/gpio/unexport"
+#define FS_ANALOG_DIR	"/sys/devices/platform/omap/tsc/%s"
 
 // Class Definition
-class beagleIO {
+class beagleGPIO {
 public:
-			beagleIO(io_pin*, int);
-			~beagleIO();
+			beagleGPIO(io_pin*, int);
+			~beagleGPIO();
 
 	// Digital Functions
 	void	digitalSetDirection(unsigned int, PIN_DIRECTION);
@@ -99,14 +99,8 @@ public:
 	bool	digitalGetValue(unsigned int);
 	void	digitalSetValue(unsigned int, bool);
 
-	// Serial Functions
-	int		serialRead(unsigned int, char*, int);
-	void	serialWrite(unsigned int, const char*, int);
-	void	serialOpen(unsigned int);
-	void	serialClose(unsigned int);
-	void	serialConfig(unsigned int);
-
 	// Analog Functions
+	void	analogRead(unsigned int, int*);
 	int		analogRead(unsigned int);
 
 	// PWM Functions
@@ -116,19 +110,20 @@ public:
 	void	pwmSetFreq(unsigned int, unsigned int);
 	void	pwmSetDuty(unsigned int, unsigned int);
 
-	void	pinSetMode(unsigned int, PIN_MUX, PIN_DIRECTION);
-	void	pinSetMode(unsigned int, PIN_MUX, PIN_PULLUP_EN, PIN_PULLUP, PIN_DIRECTION, PIN_SLEW);
+	// Configuration Functions
+	void	pinSetMux(unsigned int, PIN_MUX);
+	void	pinSetMux(unsigned int, PIN_MUX, PIN_PULLUP_EN, PIN_PULLUP, PIN_DIRECTION, PIN_SLEW);
+
+	int		pinExport(unsigned int);
+	int		pinUnexport(unsigned int);
 
 private:
 	// Private functions
-	int		gpioExport(unsigned int);
-	int		gpioUnexport(unsigned int);
-
-	int		gpioRead(int, char*);
-	int		gpioRead(int, long int*, int);
+	int		gpioRead(int, char*, int);
+	int		gpioRead(int, long int*, int = 0);
 
 	int		gpioWrite(int, const char*, unsigned int);
-	int		gpioWrite(int, int);
+	int		gpioWrite(int, int, int = 0);
 
 	int		gpioOpen(const char*, int);
 	int		gpioClose(int);
@@ -140,4 +135,4 @@ private:
 	int 	gpio_count;
 };
 
-#endif /* GPIO_H_ */
+#endif /* BEAGLEGPIO_H_ */
