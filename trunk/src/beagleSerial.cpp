@@ -19,8 +19,6 @@ using namespace std;
 
 beagleSerial::beagleSerial(const char *ttyDir) {
 	tty = ttyDir;
-
-	configPort(0);
 }
 
 beagleSerial::~beagleSerial() {
@@ -33,6 +31,7 @@ beagleSerial::~beagleSerial() {
  * Serial Function
  */
 
+// Read a string from the serial port
 int beagleSerial::readString(char *buf, int count) {
 	int rc;
 
@@ -48,6 +47,7 @@ int beagleSerial::readString(char *buf, int count) {
 	return rc;
 }
 
+// Write a string to the serial port
 int beagleSerial::writeString(const char *buf, int count) {
 	int rc;
 
@@ -63,7 +63,8 @@ int beagleSerial::writeString(const char *buf, int count) {
 	return rc;
 }
 
-void beagleSerial::openPort() {
+// Open the serial port and configure settings
+void beagleSerial::openPort(BAUD baud_rate, PARITY_BIT parity_bit, BYTE_SIZE byte_size, STOP_BIT stop_bit) {
 	int rc;
 
 	// Open the file for write only
@@ -72,16 +73,12 @@ void beagleSerial::openPort() {
 	} else {
 		fd = rc;
 	}
-}
-
-void beagleSerial::openPort(int flags) {
-	// Opent the serial port
-	openPort();
 
 	// Set the port configuration
-	configPort(flags);
+	configPort(baud_rate, parity_bit, byte_size, stop_bit);
 }
 
+// Close the serial port
 void beagleSerial::closePort() {
 	int rc;
 
@@ -93,23 +90,40 @@ void beagleSerial::closePort() {
 	}
 }
 
-void beagleSerial::configPort(int flags) {
+// Configure the serial port settings
+void beagleSerial::configPort(BAUD baud_rate, PARITY_BIT parity_bit, BYTE_SIZE byte_size, STOP_BIT stop_bit) {
 	struct termios options;
 
-	fcntl(fd, F_SETFL, FNDELAY); /* Configure port reading */
+	// Configure port reading
+	fcntl(fd, F_SETFL, FNDELAY);
 
-	tcgetattr(fd, &options); /* Get the current options for the port */
+	// Get the current options for the port
+	tcgetattr(fd, &options);
 
-	cfsetispeed(&options, B9600); /* Set the baud rates to 9600 */
-	cfsetospeed(&options, B9600);
+	// Set the Tx and Rx baud rates
+	cfsetispeed(&options, baud_rate);
+	cfsetospeed(&options, baud_rate);
 
-	options.c_cflag |= (CLOCAL | CREAD); /* Enable the receiver and set local mode */
-	options.c_cflag &= ~PARENB; /* Mask the character size to 8 bits, no parity */
+	// Enable the receiver and set local mode
+	options.c_cflag |= (CLOCAL | CREAD);
+
+	// Mask previous settings
+	options.c_cflag &= ~PARENB;
+	options.c_cflag &= ~PARODD;
 	options.c_cflag &= ~CSTOPB;
 	options.c_cflag &= ~CSIZE;
-	options.c_cflag |= CS8; /* Select 8 data bits */
-	options.c_cflag &= ~CRTSCTS; /* Disable hardware flow control */
-	options.c_lflag &= ~(ICANON | ECHO | ISIG);/* Enable data to be processed as raw input */
 
-	tcsetattr(fd, TCSANOW, &options); /* Set the new options for the port */
+	// Configure new settings
+	options.c_cflag |= byte_size;
+	options.c_cflag |= parity_bit;
+	options.c_cflag |= stop_bit;
+
+	// Disable hardware flow control
+	options.c_cflag &= ~CRTSCTS;
+
+	// Enable data to be processed as raw input
+	options.c_lflag &= ~(ICANON | ECHO | ISIG);
+
+	// Set the new for the port
+	tcsetattr(fd, TCSANOW, &options);
 }
