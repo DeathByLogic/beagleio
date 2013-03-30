@@ -1,15 +1,13 @@
 /*
- * gpio.h
+ * beagleGPIO.cpp
  *
- *  Created on: Feb 11,	2013
+ *  Created on: Mar 24, 2013
  *      Author: daniel@deathbylogic.com
  */
 
-#ifndef BEAGLEIO_H_
-#define BEAGLEIO_H_
-
 #include <unistd.h>
-#include "gpio.h"
+#include "beagleGPIO.h"
+#include "beagleSerial.h"
 
 // I/O Header Pins
 io_pin P8_pins[46] = {
@@ -93,14 +91,14 @@ io_pin P9_pins[46] = {
 	{"SPI1_D1",		116,	DIGITAL,			"mscasp0_axr0", 	NULL		},
 	{"SPI1_SCLK",	110,	DIGITAL,			"mcasp0_aclkx",		NULL		},
 	{"VDD_ADC",		0,		POWER,				NULL,				NULL		},
-	{"AIN4",		4,		ANALOG,				NULL, 				NULL		},
+	{"AIN4",		0,		ANALOG,				NULL, 				"ani5"		},
 	{"GNDA_ADC",	0,		POWER,				NULL,				NULL		},
-	{"AIN6",		6,		ANALOG,				NULL, 				NULL		},
-	{"AIN5",		5,		ANALOG,				NULL, 				NULL		},
-	{"AIN2",		2,		ANALOG,				NULL, 				NULL		},
-	{"AIN3",		3,		ANALOG,				NULL, 				NULL		},
-	{"AIN0",		0,		ANALOG,				NULL, 				NULL		},
-	{"AIN1",		1,		ANALOG,				NULL, 				NULL		},
+	{"AIN6",		0,		ANALOG,				NULL, 				"ani7"		},
+	{"AIN5",		0,		ANALOG,				NULL, 				"ani6"		},
+	{"AIN2",		0,		ANALOG,				NULL, 				"ani3"		},
+	{"AIN3",		0,		ANALOG,				NULL, 				"ani4"		},
+	{"AIN0",		0,		ANALOG,				NULL, 				"ani1"		},
+	{"AIN1",		0,		ANALOG,				NULL, 				"ani2"		},
 	{"CLKOUT2",		20,		DIGITAL,			"xdma_event_intr1",	NULL		},
 	{"GPIO0_7",		7,		DIGITAL,			"ecap0_in_pwm0_out",NULL		},
 	{"GND",			0,		POWER,				NULL,				NULL		},
@@ -114,4 +112,12 @@ io_pin usr_pins[4] = {
 	{"USR2",		55,		DIGITAL,			"gpmc_a7",			NULL		},
 	{"USR3",		56,		DIGITAL,			"gpmc_a8",			NULL		}};
 
-#endif /* BEAGLEIO_H_ */
+// BeagleIO objects for P8 & P9 connectors
+beagleGPIO P8(P8_pins, 46);
+beagleGPIO P9(P9_pins, 46);
+
+// BeagleIO objects for UARTs
+beagleSerial serial1("/dev/ttyO1");
+beagleSerial serial2("/dev/ttyO2");
+beagleSerial serial4("/dev/ttyO4");
+beagleSerial serial5("/dev/ttyO5");
