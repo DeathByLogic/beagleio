@@ -32,7 +32,7 @@ beagleSerial::~beagleSerial() {
  */
 
 // Read a string from the serial port
-int beagleSerial::readString(char *buf, int count) {
+int beagleSerial::readString(void *buf, int count) {
 	int rc;
 
 	if (fd <= 0) {
@@ -48,7 +48,7 @@ int beagleSerial::readString(char *buf, int count) {
 }
 
 // Write a string to the serial port
-int beagleSerial::writeString(const char *buf, int count) {
+int beagleSerial::writeString(const void *buf, int count) {
 	int rc;
 
 	if (fd <= 0) {
@@ -108,10 +108,7 @@ void beagleSerial::configPort(BAUD baud_rate, PARITY_BIT parity_bit, BYTE_SIZE b
 	options.c_cflag |= (CLOCAL | CREAD);
 
 	// Mask previous settings
-	options.c_cflag &= ~PARENB;
-	options.c_cflag &= ~PARODD;
-	options.c_cflag &= ~CSTOPB;
-	options.c_cflag &= ~CSIZE;
+	options.c_cflag &= ~(PARENB | PARODD | CSTOPB | CSIZE);
 
 	// Configure new settings
 	options.c_cflag |= byte_size;
@@ -122,7 +119,9 @@ void beagleSerial::configPort(BAUD baud_rate, PARITY_BIT parity_bit, BYTE_SIZE b
 	options.c_cflag &= ~CRTSCTS;
 
 	// Enable data to be processed as raw input
-	options.c_lflag &= ~(ICANON | ECHO | ISIG);
+	options.c_lflag &= ~(ICANON | ECHO | ISIG | ONLCR | OCRNL | ECHONL | IEXTEN);
+	options.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+	options.c_oflag &= ~OPOST;
 
 	// Set the new for the port
 	tcsetattr(fd, TCSANOW, &options);

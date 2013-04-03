@@ -52,8 +52,8 @@ public:
 	~beagleSerial();
 
 	// Serial Functions
-	int		readString(char*, int);
-	int		writeString(const char*, int);
+	int		readString(void*, int);
+	int		writeString(const void*, int);
 	void	openPort(BAUD, PARITY_BIT = PB_NONE, BYTE_SIZE = BS_8_BIT, STOP_BIT = SB_ONE);
 	void	closePort();
 	void	configPort(BAUD, PARITY_BIT = PB_NONE, BYTE_SIZE = BS_8_BIT, STOP_BIT = SB_ONE);
