@@ -111,8 +111,7 @@ public:
 	void	pwmSetDuty(unsigned int, unsigned int);
 
 	// Configuration Functions
-	void	pinSetMux(unsigned int, PIN_MUX);
-	void	pinSetMux(unsigned int, PIN_MUX, PIN_PULLUP_EN, PIN_PULLUP, PIN_DIRECTION, PIN_SLEW);
+	void	pinSetMux(unsigned int, PIN_MUX, PIN_PULLUP_EN = PULLUP_ENABLED, PIN_PULLUP = PULLDOWN, PIN_DIRECTION = OUTPUT_PIN, PIN_SLEW = FAST_SLEW);
 
 	int		pinExport(unsigned int);
 	int		pinUnexport(unsigned int);

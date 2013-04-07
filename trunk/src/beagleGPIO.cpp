@@ -190,27 +190,6 @@ void beagleGPIO::digitalSetEdge(unsigned int pin, PIN_EDGE edge) {
  * Set Pin Mux Mode
  */
 
-void beagleGPIO::pinSetMux(unsigned int pin, PIN_MUX mode) {
-	int fd;
-	char dirBuff[MAX_BUFF];
-
-	// Check if pin is in table of pins
-	if (checkGPIO(pin, DIGITAL bitor SERIAL bitor PWM) == false) {
-		fprintf(stderr, "Pin %d is a invalid pin or it is not a valid digital I/O.\n", pin);
-		return;
-	} else {
-		snprintf(dirBuff, sizeof(dirBuff), FS_MUX_DIR, gpio_pins[pin - 1].mux);
-
-		// Open the file location
-		fd = gpioOpen(dirBuff, O_WRONLY);
-
-		gpioWrite(fd, mode, 16);
-
-		// Close the file location
-		gpioClose(fd);
-	}
-}
-
 void beagleGPIO::pinSetMux(unsigned int pin, PIN_MUX mode, PIN_PULLUP_EN pullup_en, PIN_PULLUP pullup, PIN_DIRECTION direction, PIN_SLEW slew) {
 	int fd;
 	char dirBuff[MAX_BUFF];
