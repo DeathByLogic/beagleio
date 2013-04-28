@@ -92,16 +92,20 @@ public:
 			~beagleGPIO();
 
 	// Digital Functions
-	void	digitalSetDirection(unsigned int, PIN_DIRECTION);
-	void	digitalSetEdge(unsigned int, PIN_EDGE);
+	void	digitalSetDirection(unsigned int pin, PIN_DIRECTION);
+	void	digitalSetEdge(unsigned int pin, PIN_EDGE);
 
-	void	digitalGetValue(unsigned int, bool*);
-	bool	digitalGetValue(unsigned int);
-	void	digitalSetValue(unsigned int, bool);
+	void	digitalGetValue(unsigned int pin , bool *value);
+	bool	digitalGetValue(unsigned int pin);
+
+	void	fdigitalGetValue(int fd, bool *value);
+	bool	fdigitalGetValue(int fd);
+
+	void	digitalSetValue(unsigned int pin, bool value);
 
 	// Analog Functions
-	void	analogRead(unsigned int, int*);
-	int		analogRead(unsigned int);
+	void	analogRead(unsigned int pin, int *value);
+	int		analogRead(unsigned int pin);
 
 	// PWM Functions
 	void	pwmRun(unsigned int);
@@ -113,8 +117,11 @@ public:
 	// Configuration Functions
 	void	pinSetMux(unsigned int, PIN_MUX, PIN_PULLUP_EN = PULLUP_ENABLED, PIN_PULLUP = PULLDOWN, PIN_DIRECTION = OUTPUT_PIN, PIN_SLEW = FAST_SLEW);
 
-	int		pinExport(unsigned int);
-	int		pinUnexport(unsigned int);
+	int		pinExport(unsigned int pin);
+	int		pinUnexport(unsigned int pin);
+
+	int		pinOpen(unsigned int pin);
+	void	pinClose(int fd);
 
 private:
 	// Private functions
