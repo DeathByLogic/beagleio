@@ -15,7 +15,7 @@
 using namespace std;
 
 /*
- * Constructor & Deconstructor
+ * Constructor & Destructor
  */
 
 beagleGPIO::beagleGPIO(io_pin *pins, int count) {
@@ -77,6 +77,30 @@ bool beagleGPIO::digitalGetValue(unsigned int pin) {
 	digitalGetValue(pin, &tmpValue);
 
 	return tmpValue;
+}
+
+void beagleGPIO::fdigitalGetValue(int fd, bool *value) {
+	long int tmpValue;
+
+	if (fd > 0) {
+		// Seek to the beginning of the file
+		lseek(fd, 0, SEEK_SET);
+
+		// Read the value of pin
+		gpioRead(fd, &tmpValue);
+
+		*value = (bool)tmpValue;
+	}
+}
+
+bool beagleGPIO::fdigitalGetValue(int fd) {
+	bool tmpValue;
+
+	// Read Digital Value
+	digitalGetValue(fd, &tmpValue);
+
+	return tmpValue;
+
 }
 
 void beagleGPIO::digitalSetValue(unsigned int pin, bool value) {
@@ -155,7 +179,7 @@ void beagleGPIO::digitalSetEdge(unsigned int pin, PIN_EDGE edge) {
 		if (gpio_pins[pin - 1].exported == false) {
 			fprintf(stderr, "BeagleIO: Pin %d has not been exported\n", pin);
 		} else {
-			snprintf(dirBuff, sizeof(dirBuff), FS_DIR_DIR, gpio_pins[pin - 1].pin);
+			snprintf(dirBuff, sizeof(dirBuff), FS_EDGE_DIR, gpio_pins[pin - 1].pin);
 
 			// Open the file location
 			fd = gpioOpen(dirBuff, O_WRONLY);
@@ -163,19 +187,19 @@ void beagleGPIO::digitalSetEdge(unsigned int pin, PIN_EDGE edge) {
 			// Write direction to file
 			switch (edge) {
 			case NONE:
-				gpioWrite(fd, "none", 4);
+				gpioWrite(fd, "none", 5);
 
 				break;
 			case RISING_EDGE:
-				gpioWrite(fd, "rising", 6);
+				gpioWrite(fd, "rising", 7);
 
 				break;
 			case FALLING_EDGE:
-				gpioWrite(fd, "falling", 7);
+				gpioWrite(fd, "falling", 8);
 
 				break;
 			case BOTH_EDGES:
-				gpioWrite(fd, "both", 4);
+				gpioWrite(fd, "both", 5);
 
 				break;
 			}
@@ -270,6 +294,32 @@ int beagleGPIO::pinUnexport(unsigned int pin) {
 
 		return 0;
 	}
+}
+
+int beagleGPIO::pinOpen(unsigned int pin) {
+	int fd;
+	char dirBuff[MAX_BUFF];
+
+	if (checkGPIO(pin, DIGITAL bitor SERIAL bitor PWM bitor ANALOG) == false) {
+		fprintf(stderr, "BeagleIO: Pin %d is a invalid pin.\n", pin);
+		return -1;
+	} else {
+		// Check in pin has been exported
+		if (gpio_pins[pin - 1].exported == false) {
+			fprintf(stderr, "BeagleIO: Pin %d has not been exported\n", pin);
+		} else {
+			snprintf(dirBuff, sizeof(dirBuff), FS_VALUE_DIR, gpio_pins[pin - 1].pin);
+
+			// Open the file location
+			fd = gpioOpen(dirBuff, O_RDONLY | O_NONBLOCK);
+		}
+	}
+
+	return fd;
+}
+
+void beagleGPIO::pinClose(int fd) {
+	gpioClose(fd);
 }
 
 /*
