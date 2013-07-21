@@ -18,346 +18,69 @@ using namespace std;
  * Constructor & Destructor
  */
 
-beagleGPIO::beagleGPIO(io_pin *pins, int count) {
-	gpio_pins = pins;
-	gpio_count = count;
+//beagleGPIO::beagleGPIO() {
+//	// Do nothing
+//}
+
+//beagleGPIO::beagleGPIO(const char *ID) {
+////	gpio_pins = pins;
+////	gpio_count = count;
+////
+////	for (int i = 0; i < gpio_count; i++) {
+////		gpio_pins[i].exported = false;
+////	}
+//	_pin = pin;
+//
+//	_exported = false;
+//}
+
+//beagleGPIO::~beagleGPIO() {
+////	// Unexport all pins
+////	for (int i = 0; i < gpio_count; i++) {
+////		if (gpio_pins[i].exported) {
+////			pinUnexport(i + 1);
+////		}
+////	}
+//}
 
-	for (int i = 0; i < gpio_count; i++) {
-		gpio_pins[i].exported = false;
-	}
-}
 
-beagleGPIO::~beagleGPIO() {
-	// Unexport all pins
-	for (int i = 0; i < gpio_count; i++) {
-		if (gpio_pins[i].exported) {
-			pinUnexport(i + 1);
-		}
-	}
-}
-
-/*
- * Digital Functions
- */
-
-void beagleGPIO::digitalGetValue(unsigned int pin, bool *value) {
-	int fd;
-	char dirBuff[MAX_BUFF];
-	long int tmpValue;
-
-	// Check if pin is in table of pins
-	if (checkGPIO(pin, DIGITAL) == false) {
-		fprintf(stderr, "BeagleIO: Pin %d is a invalid pin or it is not a valid digital I/O.\n", pin);
-		return;
-	} else {
-		// Export pin if needed
-		if (gpio_pins[pin - 1].exported == false) {
-			fprintf(stderr, "BeagleIO: Pin %d has not been exported\n", pin);
-		} else {
-			snprintf(dirBuff, sizeof(dirBuff), FS_VALUE_DIR, gpio_pins[pin - 1].pin);
-
-			// Open the file location
-			fd = gpioOpen(dirBuff, O_RDONLY);
-
-			// Read the value of pin
-			gpioRead(fd, &tmpValue);
-
-			// Close the file location
-			gpioClose(fd);
-
-			*value = (bool)tmpValue;
-		}
-	}
-}
-
-bool beagleGPIO::digitalGetValue(unsigned int pin) {
-	bool tmpValue;
-
-	// Read Digital Value
-	digitalGetValue(pin, &tmpValue);
-
-	return tmpValue;
-}
-
-void beagleGPIO::fdigitalGetValue(int fd, bool *value) {
-	long int tmpValue;
-
-	if (fd > 0) {
-		// Seek to the beginning of the file
-		lseek(fd, 0, SEEK_SET);
-
-		// Read the value of pin
-		gpioRead(fd, &tmpValue);
-
-		*value = (bool)tmpValue;
-	}
-}
-
-bool beagleGPIO::fdigitalGetValue(int fd) {
-	bool tmpValue;
-
-	// Read Digital Value
-	digitalGetValue(fd, &tmpValue);
-
-	return tmpValue;
-
-}
-
-void beagleGPIO::digitalSetValue(unsigned int pin, bool value) {
-	int fd;
-	char dirBuff[MAX_BUFF];
-
-	// Check if pin is in table of pins
-	if (checkGPIO(pin, DIGITAL) == false) {
-		fprintf(stderr, "BeagleIO: Pin %d is a invalid pin or it is not a valid digital I/O.\n", pin);
-		return;
-	} else {
-		// Export pin if needed
-		if (gpio_pins[pin - 1].exported == false) {
-			fprintf(stderr, "BeagleIO: Pin %d has not been exported\n", pin);
-		} else {
-			snprintf(dirBuff, sizeof(dirBuff), FS_VALUE_DIR, gpio_pins[pin - 1].pin);
-
-			// Open the file location
-			fd = gpioOpen(dirBuff, O_WRONLY);
-
-			// Write the value of pin
-			gpioWrite(fd, value);
-
-			// Close the file location
-			gpioClose(fd);
-		}
-	}
-}
-
-void beagleGPIO::digitalSetDirection(unsigned int pin, PIN_DIRECTION direction) {
-	int fd;
-	char dirBuff[MAX_BUFF];
-
-	// Check if pin is in table of pins
-	if (checkGPIO(pin, DIGITAL) == false) {
-		fprintf(stderr, "BeagleIO: Pin %d is a invalid pin or it is not a valid digital I/O.\n", pin);
-		return;
-	} else {
-		// Export pin if needed
-		if (gpio_pins[pin - 1].exported == false) {
-			fprintf(stderr, "BeagleIO: Pin %d has not been exported\n", pin);
-		} else {
-			snprintf(dirBuff, sizeof(dirBuff), FS_DIR_DIR, gpio_pins[pin - 1].pin);
-
-			// Open the file location
-			fd = gpioOpen(dirBuff, O_WRONLY);
-
-			// Write direction to file
-			switch (direction) {
-			case INPUT_PIN:
-				gpioWrite(fd, "in", 3);
-
-				break;
-			case OUTPUT_PIN:
-				gpioWrite(fd, "out", 4);
-
-				break;
-			}
-
-			// Close the file location
-			gpioClose(fd);
-		}
-	}
-}
-
-void beagleGPIO::digitalSetEdge(unsigned int pin, PIN_EDGE edge) {
-	int fd;
-	char dirBuff[MAX_BUFF];
-
-	// Check if pin is in table of pins
-	if (checkGPIO(pin, DIGITAL) == false) {
-		fprintf(stderr, "S: Pin %d is a invalid pin or it is not a valid digital I/O.\n", pin);
-		return;
-	} else {
-		// Export pin if needed
-		if (gpio_pins[pin - 1].exported == false) {
-			fprintf(stderr, "BeagleIO: Pin %d has not been exported\n", pin);
-		} else {
-			snprintf(dirBuff, sizeof(dirBuff), FS_EDGE_DIR, gpio_pins[pin - 1].pin);
-
-			// Open the file location
-			fd = gpioOpen(dirBuff, O_WRONLY);
-
-			// Write direction to file
-			switch (edge) {
-			case NONE:
-				gpioWrite(fd, "none", 5);
-
-				break;
-			case RISING_EDGE:
-				gpioWrite(fd, "rising", 7);
-
-				break;
-			case FALLING_EDGE:
-				gpioWrite(fd, "falling", 8);
-
-				break;
-			case BOTH_EDGES:
-				gpioWrite(fd, "both", 5);
-
-				break;
-			}
-
-			// Close the file location
-			gpioClose(fd);
-		}
-	}
-}
-
-/*
- * Set Pin Mux Mode
- */
-
-void beagleGPIO::pinSetMux(unsigned int pin, PIN_MUX mode, PIN_PULLUP_EN pullup_en, PIN_PULLUP pullup, PIN_DIRECTION direction, PIN_SLEW slew) {
-	int fd;
-	char dirBuff[MAX_BUFF];
-	unsigned int omap_mux;
-
-	// Check if pin is in table of pins
-	if (checkGPIO(pin, DIGITAL bitor SERIAL bitor PWM) == false) {
-		fprintf(stderr, "BeagleIO: Pin %d is a invalid pin or it is not a valid digital I/O.\n", pin);
-		return;
-	} else {
-		snprintf(dirBuff, sizeof(dirBuff), FS_MUX_DIR, gpio_pins[pin - 1].mux);
-
-		omap_mux = mode bitor pullup_en bitor pullup bitor direction bitor slew;
-
-		// Open the file location
-		fd = gpioOpen(dirBuff, O_WRONLY);
-
-		gpioWrite(fd, omap_mux, 16);
-
-		// Close the file location
-		gpioClose(fd);
-	}
-}
-
-// Export the GPIO pin
-int beagleGPIO::pinExport(unsigned int pin) {
-	int rc;
-	int	fileDes;
-	int buffLen;
-	char dirBuff[MAX_BUFF];
-
-	// Attempt to open file for write only
-	if ((fileDes = gpioOpen(FS_EXPORT_DIR, O_WRONLY)) < 0) {
-		return fileDes;
-	} else {
-		buffLen = snprintf(dirBuff, sizeof(dirBuff), "%d", gpio_pins[pin - 1].pin);
-
-		// Write pin number to export file
-		if (gpioWrite(fileDes, dirBuff, buffLen) > 0) {
-			gpio_pins[pin - 1].exported =  true;
-
-			printf("BeagleIO: Exported gpio%d\t(Pin %d)\n", gpio_pins[pin - 1].pin, pin);
-		}
-
-		// Close export file
-		if ((rc = gpioClose(fileDes)) < 0) {
-			return rc;
-		}
-
-		return 0;
-	}
-}
-
-// Unexport the GPIO pin
-int beagleGPIO::pinUnexport(unsigned int pin) {
-	int rc;
-	int	fileDes;
-	int buffLen;
-	char dirBuff[MAX_BUFF];
-
-	// Open file for write only
-	if ((fileDes = gpioOpen(FS_UNEXPORT_DIR, O_WRONLY)) < 0) {
-		return fileDes;
-	} else {
-		buffLen = snprintf(dirBuff, sizeof(dirBuff), "%d", gpio_pins[pin - 1].pin);
-
-		// Write pin to unexport file
-		if (gpioWrite(fileDes, dirBuff, buffLen) > 0) {
-			gpio_pins[pin - 1].exported =  false;
-
-			printf("BeagleIO: Unexported gpio%d\t(Pin %d)\n", gpio_pins[pin - 1].pin, pin);
-		}
-
-		// Close File
-		if ((rc = close(fileDes)) < 0) {
-			return rc;
-		}
-
-		return 0;
-	}
-}
-
-int beagleGPIO::pinOpen(unsigned int pin) {
-	int fd;
-	char dirBuff[MAX_BUFF];
-
-	if (checkGPIO(pin, DIGITAL bitor SERIAL bitor PWM bitor ANALOG) == false) {
-		fprintf(stderr, "BeagleIO: Pin %d is a invalid pin.\n", pin);
-		return -1;
-	} else {
-		// Check in pin has been exported
-		if (gpio_pins[pin - 1].exported == false) {
-			fprintf(stderr, "BeagleIO: Pin %d has not been exported\n", pin);
-		} else {
-			snprintf(dirBuff, sizeof(dirBuff), FS_VALUE_DIR, gpio_pins[pin - 1].pin);
-
-			// Open the file location
-			fd = gpioOpen(dirBuff, O_RDONLY | O_NONBLOCK);
-		}
-	}
-
-	return fd;
-}
-
-void beagleGPIO::pinClose(int fd) {
-	gpioClose(fd);
-}
 
 /*
  * Analog Functions
  */
 
-void beagleGPIO::analogRead(unsigned int pin, int *value) {
-	int fd;
-	char dirBuff[MAX_BUFF];
-	long int tmpValue;
-
-	// Check if pin is in table of pins
-	if (checkGPIO(pin, ANALOG) == false) {
-		fprintf(stderr, "BeagleIO: Pin %d is a invalid pin or it is not a valid analog input.\n", pin);
-		return;
-	} else {
-		snprintf(dirBuff, sizeof(dirBuff), FS_ANALOG_DIR, gpio_pins[pin - 1].alt);
-
-		// Open the file location
-		fd = gpioOpen(dirBuff, O_RDONLY);
-
-		// Read the value of pin
-		gpioRead(fd, &tmpValue);
-
-		// Close the file location
-		gpioClose(fd);
-
-		*value = tmpValue;
-	}
-}
-
-int beagleGPIO::analogRead(unsigned int pin) {
-	int tmpValue;
-
-	analogRead(pin, &tmpValue);
-
-	return tmpValue;
-}
+//void beagleGPIO::analogRead(unsigned int pin, int *value) {
+//	int fd;
+//	char dirBuff[MAX_BUFF];
+//	long int tmpValue;
+//
+//	// Check if pin is in table of pins
+//	if (checkGPIO(pin, ANALOG) == false) {
+//		fprintf(stderr, "BeagleIO: Pin %d is a invalid pin or it is not a valid analog input.\n", pin);
+//		return;
+//	} else {
+//		snprintf(dirBuff, sizeof(dirBuff), FS_ANALOG_DIR, gpio_pins[pin - 1].alt);
+//
+//		// Open the file location
+//		fd = gpioOpen(dirBuff, O_RDONLY);
+//
+//		// Read the value of pin
+//		gpioRead(fd, &tmpValue);
+//
+//		// Close the file location
+//		gpioClose(fd);
+//
+//		*value = tmpValue;
+//	}
+//}
+//
+//int beagleGPIO::analogRead(unsigned int pin) {
+//	int tmpValue;
+//
+//	analogRead(pin, &tmpValue);
+//
+//	return tmpValue;
+//}
 
 /*
  * PWM Functions
@@ -389,31 +112,55 @@ void pwmSetDuty(unsigned int, unsigned int) {
  * GPIO File Access Functions
  */
 
-bool beagleGPIO::checkGPIO(unsigned int pin, unsigned int type) {
-	 if ((gpio_pins[pin - 1].type bitand type) > 0) {
-		 return true;
-	 }
+//bool beagleGPIO::checkGPIO(unsigned int pin, unsigned int type) {
+//	 if ((gpio_pins[pin - 1].type bitand type) > 0) {
+//		 return true;
+//	 }
+//
+//	return false;
+//}
 
-	return false;
+int beagleGPIO::gpioOpen(const char *dir, int flags) {
+	int	fileDes;
+
+	// Open the file for write only
+	if ((fileDes = open(dir, flags)) < 0) {
+		perror("BeagleIO: Unable to open file ");
+	}
+
+	return fileDes;
 }
 
-int beagleGPIO::gpioRead(int fileDes, char *readBuff, int count) {
+int beagleGPIO::gpioClose(int file_des) {
+	int rc;
+
+	// Close the file
+	if ((rc = close(file_des)) < 0) {
+		perror("BeagleIO: Unable to close file ");
+	}
+
+	return rc;
+}
+
+// Low level GPIO functions
+
+int beagleGPIO::gpioRead(char *readBuff, int count) {
 	int rc;
 
 	// Read value of file
-	if ((rc = read(fileDes, readBuff, count)) < 0) {
+	if ((rc = read(_fd, readBuff, count)) < 0) {
 		perror("BeagleIO: Unable to read from file ");
 	}
 
 	return rc;
 }
 
-int beagleGPIO::gpioRead(int fileDes, long int *value, int base) {
+int beagleGPIO::gpioRead(long int *value, int base) {
 	int rc;
 	char tempBuff[MAX_BUFF];
 
 	// Read value of file
-	if ((rc = gpioRead(fileDes, tempBuff, MAX_BUFF)) < 0) {
+	if ((rc = gpioRead(tempBuff, MAX_BUFF)) < 0) {
 		return rc;
 	} else {
 		*value = strtol(tempBuff, NULL, base);
@@ -421,18 +168,18 @@ int beagleGPIO::gpioRead(int fileDes, long int *value, int base) {
 
 	return 0;
 }
-int beagleGPIO::gpioWrite(int fileDes, const char *writeBuff, unsigned int size) {
+int beagleGPIO::gpioWrite(const char *writeBuff, unsigned int size) {
 	int rc;
 
 	// Write buffer to file
-	if ((rc = write(fileDes, writeBuff, size + 1)) < 0) {
+	if ((rc = write(_fd, writeBuff, size + 1)) < 0) {
 		perror("BeagleIO: Unable to write to file ");
 	}
 
 	return rc;
 }
 
-int beagleGPIO::gpioWrite(int fileDes, int value, int base) {
+int beagleGPIO::gpioWrite(int value, int base) {
 	int rc;
 	int valueLen;
 	char valueBuff[MAX_BUFF];
@@ -453,29 +200,7 @@ int beagleGPIO::gpioWrite(int fileDes, int value, int base) {
 		break;
 	}
 
-	rc = gpioWrite(fileDes, valueBuff, valueLen);
-
-	return rc;
-}
-
-int beagleGPIO::gpioOpen(const char *dir, int flags) {
-	int	fileDes;
-
-	// Open the file for write only
-	if ((fileDes = open(dir, flags)) < 0) {
-		perror("BeagleIO: Unable to open file ");
-	}
-
-	return fileDes;
-}
-
-int beagleGPIO::gpioClose(int file_des) {
-	int rc;
-
-	// Close the file
-	if ((rc = close(file_des)) < 0) {
-		perror("BeagleIO: Unable to close file ");
-	}
+	rc = gpioWrite(valueBuff, valueLen);
 
 	return rc;
 }
