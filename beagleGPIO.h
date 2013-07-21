@@ -87,58 +87,108 @@ enum PIN_EDGE {
 
 // Class Definition
 class beagleGPIO {
-public:
-			beagleGPIO(io_pin*, int);
-			~beagleGPIO();
-
-	// Digital Functions
-	void	digitalSetDirection(unsigned int pin, PIN_DIRECTION);
-	void	digitalSetEdge(unsigned int pin, PIN_EDGE);
-
-	void	digitalGetValue(unsigned int pin , bool *value);
-	bool	digitalGetValue(unsigned int pin);
-
-	void	fdigitalGetValue(int fd, bool *value);
-	bool	fdigitalGetValue(int fd);
-
-	void	digitalSetValue(unsigned int pin, bool value);
-
-	// Analog Functions
-	void	analogRead(unsigned int pin, int *value);
-	int		analogRead(unsigned int pin);
-
-	// PWM Functions
-	void	pwmRun(unsigned int);
-	void	pwmStop(unsigned int);
-	void	pwmSetConfig(unsigned int, unsigned int, unsigned int);
-	void	pwmSetFreq(unsigned int, unsigned int);
-	void	pwmSetDuty(unsigned int, unsigned int);
-
-	// Configuration Functions
-	void	pinSetMux(unsigned int, PIN_MUX, PIN_PULLUP_EN = PULLUP_ENABLED, PIN_PULLUP = PULLDOWN, PIN_DIRECTION = OUTPUT_PIN, PIN_SLEW = FAST_SLEW);
-
-	int		pinExport(unsigned int pin);
-	int		pinUnexport(unsigned int pin);
-
-	int		pinOpen(unsigned int pin);
-	void	pinClose(int fd);
-
 private:
-	// Private functions
-	int		gpioRead(int, char*, int);
-	int		gpioRead(int, long int*, int = 0);
+	const char	*_ID;
 
-	int		gpioWrite(int, const char*, unsigned int);
-	int		gpioWrite(int, int, int = 0);
+	beagleGPIO();
 
-	int		gpioOpen(const char*, int);
-	int		gpioClose(int);
+protected:
+	unsigned int _pin;
+	bool 		 _exported;
 
-	bool	checkGPIO(unsigned int, unsigned int);
+	int 		 _fd;
 
-	// Private variables
-	io_pin	*gpio_pins;
-	int 	gpio_count;
+	int          gpioOpen(const char*, int);
+	int			 gpioClose(int);
+
+	int	 		 gpioRead(char*, int);
+	int	 		 gpioRead(long int*, int = 0);
+
+	int			 gpioWrite(const char*, unsigned int);
+	int			 gpioWrite(int, int = 0);
+
+public:
+
+				 beagleGPIO(const char *ID) : _ID(ID) { }
+	virtual		~beagleGPIO() = 0;
+
+	// global object functions
+	virtual int	 pinOpen();
+	virtual void pinClose();
+
+	// digital object virtual functions
+	virtual void setDirection(PIN_DIRECTION);
+	virtual void setEdge(PIN_EDGE);
+	virtual void getValue(bool *value);
+	virtual bool getValue();
+	virtual void setValue(bool value);
+
+	virtual void pinSetMux(PIN_MUX, PIN_PULLUP_EN = PULLUP_ENABLED, PIN_PULLUP = PULLDOWN, PIN_DIRECTION = OUTPUT_PIN, PIN_SLEW = FAST_SLEW);
+	virtual int	 pinExport();
+	virtual int  pinUnexport();
+
+
+	// serial object virtual functions
+
+	// pwm object virtual functions
+
+	// analog object virtual functions
 };
+
+
+//class beagleGPIO {
+//public:
+//			beagleGPIO(io_pin*, int);
+//			~beagleGPIO();
+//
+//	// Digital Functions
+//	void	digitalSetDirection(unsigned int pin, PIN_DIRECTION);
+//	void	digitalSetEdge(unsigned int pin, PIN_EDGE);
+//
+//	void	digitalGetValue(unsigned int pin , bool *value);
+//	bool	digitalGetValue(unsigned int pin);
+//
+//	void	fdigitalGetValue(int fd, bool *value);
+//	bool	fdigitalGetValue(int fd);
+//
+//	void	digitalSetValue(unsigned int pin, bool value);
+//
+//	// Analog Functions
+//	void	analogRead(unsigned int pin, int *value);
+//	int		analogRead(unsigned int pin);
+//
+//	// PWM Functions
+//	void	pwmRun(unsigned int);
+//	void	pwmStop(unsigned int);
+//	void	pwmSetConfig(unsigned int, unsigned int, unsigned int);
+//	void	pwmSetFreq(unsigned int, unsigned int);
+//	void	pwmSetDuty(unsigned int, unsigned int);
+//
+//	// Configuration Functions
+//	void	pinSetMux(unsigned int, PIN_MUX, PIN_PULLUP_EN = PULLUP_ENABLED, PIN_PULLUP = PULLDOWN, PIN_DIRECTION = OUTPUT_PIN, PIN_SLEW = FAST_SLEW);
+//
+//	int		pinExport(unsigned int pin);
+//	int		pinUnexport(unsigned int pin);
+//
+//	int		pinOpen(unsigned int pin);
+//	void	pinClose(int fd);
+//
+//private:
+//	// Private functions
+//	int		gpioRead(int, char*, int);
+//	int		gpioRead(int, long int*, int = 0);
+//
+//	int		gpioWrite(int, const char*, unsigned int);
+//	int		gpioWrite(int, int, int = 0);
+//
+//	int		gpioOpen(const char*, int);
+//	int		gpioClose(int);
+//
+//	bool	checkGPIO(unsigned int, unsigned int);
+//
+//	// Private variables
+//	io_pin	*gpio_pins;
+//	int 	gpio_count;
+//};
 
 #endif /* BEAGLEGPIO_H_ */
