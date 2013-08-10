@@ -90,9 +90,11 @@ class beagleGPIO {
 private:
 	const char	*_ID;
 
-	beagleGPIO();
+	//beagleGPIO();
 
 protected:
+				 beagleGPIO(const char *ID) : _ID(ID) { }
+
 	unsigned int _pin;
 	bool 		 _exported;
 
@@ -109,7 +111,7 @@ protected:
 
 public:
 
-				 beagleGPIO(const char *ID) : _ID(ID) { }
+
 	virtual		~beagleGPIO() = 0;
 
 	// global object functions

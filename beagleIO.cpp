@@ -123,8 +123,16 @@
 //beagleSerial serial4("/dev/ttyO4");
 //beagleSerial serial5("/dev/ttyO5");
 
-char temp[255] = "gpmc_a1";
 
-beagleGPIO *testPin = new beagleDigital("gpmc_a1");
 
+
+int main() {
+	beagleGPIO * tmp = new beagleDigital("test");
+
+	beagleGPIO **classarray = new beagleGPIO*[2];
+
+	classarray[1] = tmp;
+
+	dynamic_cast<beagleDigital*>(classarray[1])->prnt(25);
+}
 

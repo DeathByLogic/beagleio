@@ -34,6 +34,8 @@ public:
 	void pinSetMux(PIN_MUX, PIN_PULLUP_EN = PULLUP_ENABLED, PIN_PULLUP = PULLDOWN, PIN_DIRECTION = OUTPUT_PIN, PIN_SLEW = FAST_SLEW);
 	int	 pinExport();
 	int  pinUnexport();
+
+	void prnt(int value);
 };
 
 #endif /* BEAGLEDIGITAL_H_ */
