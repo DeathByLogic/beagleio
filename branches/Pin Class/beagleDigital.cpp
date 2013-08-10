@@ -27,6 +27,10 @@ beagleDigital::~beagleDigital() {
 	}
 }
 
+void beagleDigital::prnt(int value) {
+	fprintf(stderr, "%d\n", value);
+}
+
 void beagleDigital::getValue(bool *value) {
 	int fd;
 	char dirBuff[MAX_BUFF];
