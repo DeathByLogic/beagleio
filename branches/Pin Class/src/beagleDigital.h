@@ -10,32 +10,71 @@
 
 #include "beagleGPIO.h"
 
+enum PIN_VALUE {
+	LOW		= 0,
+	HIGH	= 1
+};
+
+enum PIN_DIRECTION {
+	INPUT_PIN,
+	OUTPUT_PIN
+};
+
+enum PIN_EDGE {
+	NONE,
+	RISING_EDGE,
+	FALLING_EDGE,
+	BOTH_EDGES
+};
+
+// GPIO Directories
+#define	FS_VALUE_DIR	"/sys/class/gpio/gpio%d/value"
+#define FS_DIR_DIR		"/sys/class/gpio/gpio%d/direction"
+#define FS_EDGE_DIR		"/sys/class/gpio/gpio%d/edge"
+#define FS_EXPORT_DIR	"/sys/class/gpio/export"
+#define FS_UNEXPORT_DIR	"/sys/class/gpio/unexport"
+
 class beagleDigital: public beagleGPIO {
 private:
-	const char	*_mux;
+	int			_index;
+	bool		_exported;
 
 protected:
+	int 		 gpioRead(int fd, char *str, unsigned int count);
+	int			 gpioRead(int fd, int *value, unsigned int base);
+	int			 gpioRead(int fd, int *value);
 
+	int 		 gpioWrite(int fd, const char *str, unsigned int count);
+	int			 gpioWrite(int fd, int value, unsigned int base);
+	int			 gpioWrite(int fd, int value);
 
 public:
-		 beagleDigital(const char *ID) : beagleGPIO(ID) {}
+	// Constructor & Deconstructor
+		 	 	 beagleDigital(const char *id, const int index) : beagleGPIO(id), _index(index), _exported(false) {}
+		 	 	~beagleDigital();
 
-		~beagleDigital();
+	// Pin Open and close functions
+	int	 		 openPin(const int flags);
+	void 		 closePin();
 
-	int	 pinOpen();
-	void pinClose();
+	// Read and write functions
+	void		 readPin(bool *value);
+	bool		 readPin();
 
-	void setDirection(PIN_DIRECTION);
-	void setEdge(PIN_EDGE);
-	void getValue(bool *value);
-	bool getValue();
-	void setValue(bool value);
+	void		 writePin(bool value);
 
-	void pinSetMux(PIN_MUX, PIN_PULLUP_EN = PULLUP_ENABLED, PIN_PULLUP = PULLDOWN, PIN_DIRECTION = OUTPUT_PIN, PIN_SLEW = FAST_SLEW);
-	int	 pinExport();
-	int  pinUnexport();
+	// Pin settings functions
+	int		 	 setDirection(PIN_DIRECTION);
+//	void 		 getDirection();
 
-	void prnt(int value);
+	int 		 setEdge(PIN_EDGE);
+//	void		 getEdge();
+
+	// Pin export and unexport functions
+	int	 		 exportPin();
+	int  		 unexportPin();
+
+	bool		 isExported();
 };
 
 #endif /* BEAGLEDIGITAL_H_ */
