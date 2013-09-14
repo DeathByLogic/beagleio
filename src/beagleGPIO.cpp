@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+
 #include "beagleGPIO.h"
 
 using namespace std;
@@ -29,21 +30,62 @@ using namespace std;
 ////	for (int i = 0; i < gpio_count; i++) {
 ////		gpio_pins[i].exported = false;
 ////	}
-//	_pin = pin;
+////	_pin = pin;
 //
-//	_exported = false;
+////	_exported = false;
 //}
 
-//beagleGPIO::~beagleGPIO() {
-////	// Unexport all pins
-////	for (int i = 0; i < gpio_count; i++) {
-////		if (gpio_pins[i].exported) {
-////			pinUnexport(i + 1);
-////		}
-////	}
-//}
+beagleGPIO::~beagleGPIO() {
+	// Close the fd pointer if it is open
+	if (_fd > 0) {
+		gpioClose(_fd);
+	}
 
+//	// Unexport all pins
+//	for (int i = 0; i < gpio_count; i++) {
+//		if (gpio_pins[i].exported) {
+//			pinUnexport(i + 1);
+//		}
+//	}
+}
 
+/*
+ * Private Functions
+ */
+
+int beagleGPIO::gpioOpen(const char *dir, int flags) {
+	int	fd;
+
+	// Open the file for write only
+	if ((fd = open(dir, flags)) < 0) {
+		perror("BeagleIO: Unable to open file ");
+	}
+
+	return fd;
+}
+
+int beagleGPIO::gpioClose(int fd) {
+	int rc;
+
+	// Close the file
+	if ((rc = close(fd)) < 0) {
+		perror("BeagleIO: Unable to close file ");
+	}
+
+	return rc;
+}
+
+int beagleGPIO::getPinFD() {
+	return _fd;
+}
+
+bool beagleGPIO::isOpen() {
+	if (_fd > 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
 
 /*
  * Analog Functions
@@ -120,90 +162,6 @@ void pwmSetDuty(unsigned int, unsigned int) {
 //	return false;
 //}
 
-int beagleGPIO::gpioOpen(const char *dir, int flags) {
-	int	fileDes;
-
-	// Open the file for write only
-	if ((fileDes = open(dir, flags)) < 0) {
-		perror("BeagleIO: Unable to open file ");
-	}
-
-	return fileDes;
-}
-
-int beagleGPIO::gpioClose(int file_des) {
-	int rc;
-
-	// Close the file
-	if ((rc = close(file_des)) < 0) {
-		perror("BeagleIO: Unable to close file ");
-	}
-
-	return rc;
-}
-
-// Low level GPIO functions
-
-int beagleGPIO::gpioRead(char *readBuff, int count) {
-	int rc;
-
-	// Read value of file
-	if ((rc = read(_fd, readBuff, count)) < 0) {
-		perror("BeagleIO: Unable to read from file ");
-	}
-
-	return rc;
-}
-
-int beagleGPIO::gpioRead(long int *value, int base) {
-	int rc;
-	char tempBuff[MAX_BUFF];
-
-	// Read value of file
-	if ((rc = gpioRead(tempBuff, MAX_BUFF)) < 0) {
-		return rc;
-	} else {
-		*value = strtol(tempBuff, NULL, base);
-	}
-
-	return 0;
-}
-int beagleGPIO::gpioWrite(const char *writeBuff, unsigned int size) {
-	int rc;
-
-	// Write buffer to file
-	if ((rc = write(_fd, writeBuff, size + 1)) < 0) {
-		perror("BeagleIO: Unable to write to file ");
-	}
-
-	return rc;
-}
-
-int beagleGPIO::gpioWrite(int value, int base) {
-	int rc;
-	int valueLen;
-	char valueBuff[MAX_BUFF];
-
-	switch (base) {
-	case 0:
-	case 10:
-		valueLen = snprintf(valueBuff, sizeof(valueBuff), "%d", value);
-
-		break;
-	case 8:
-		valueLen = snprintf(valueBuff, sizeof(valueBuff), "%01o", value);
-
-		break;
-	case 16:
-		valueLen = snprintf(valueBuff, sizeof(valueBuff), "%01x", value);
-
-		break;
-	}
-
-	rc = gpioWrite(valueBuff, valueLen);
-
-	return rc;
-}
 
 /*
 

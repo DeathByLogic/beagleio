@@ -18,116 +18,49 @@ typedef struct io_pin {
 	bool			 exported;
 } io_pin;
 
-// GPIO Configuration Constants
-enum PIN_MUX {
-	MUX_0	= 0x00,
-	MUX_1	= 0x01,
-	MUX_2	= 0x02,
-	MUX_3	= 0x03,
-	MUX_4	= 0x04,
-	MUX_5	= 0x05,
-	MUX_6	= 0x06,
-	MUX_7	= 0x07
-};
-
-enum PIN_PULLUP_EN {
-	PULLUP_ENABLED	= 0x00,
-	PULLUP_DISABLED	= 0x08
-};
-
-enum PIN_PULLUP {
-	PULLDOWN	= 0x00,
-	PULLUP		= 0x10
-};
-
-enum PIN_DIRECTION {
-	INPUT_PIN	= 0x20,
-	OUTPUT_PIN	= 0x00
-};
-
-enum PIN_SLEW {
-	FAST_SLEW	= 0x00,
-	SLOW_SLEW	= 0x40
-};
-
-// Other GPIO constants
-enum PIN_VALUE {
-	LOW		= 0,
-	HIGH	= 1
-};
-
-enum PIN_TYPE {
-	POWER		= 0x00,
-	SYSTEM		= 0x00,
-	DIGITAL		= 0x01,
-	PWM			= 0x02,
-	SERIAL		= 0x04,
-	ANALOG		= 0x08
-};
-
-enum PIN_EDGE {
-	NONE			= 0x00,
-	RISING_EDGE		= 0x01,
-	FALLING_EDGE	= 0x02,
-	BOTH_EDGES		= 0x03
-};
-
 // Misc Defines
 #define MAX_BUFF	64
-
-// GPIO Directories
-#define FS_SERIAL_DIR	"/dev/%s"
-#define FS_MUX_DIR		"/sys/kernel/debug/omap_mux/%s"
-#define	FS_VALUE_DIR	"/sys/class/gpio/gpio%d/value"
-#define FS_DIR_DIR		"/sys/class/gpio/gpio%d/direction"
-#define FS_EDGE_DIR		"/sys/class/gpio/gpio%d/edge"
-#define FS_EXPORT_DIR	"/sys/class/gpio/export"
-#define FS_UNEXPORT_DIR	"/sys/class/gpio/unexport"
-#define FS_ANALOG_DIR	"/sys/devices/platform/omap/tsc/%s"
 
 // Class Definition
 class beagleGPIO {
 private:
-	const char	*_ID;
-
-	//beagleGPIO();
 
 protected:
-				 beagleGPIO(const char *ID) : _ID(ID) { }
-
-	unsigned int _pin;
-	bool 		 _exported;
-
+	const char	*_id;
 	int 		 _fd;
 
-	int          gpioOpen(const char*, int);
-	int			 gpioClose(int);
+				 beagleGPIO(const char *id) : _id(id), _fd(0) { }
 
-	int	 		 gpioRead(char*, int);
-	int	 		 gpioRead(long int*, int = 0);
+	int			 gpioOpen(const char* dir, int flags);
+	int			 gpioClose(int fd);
 
-	int			 gpioWrite(const char*, unsigned int);
-	int			 gpioWrite(int, int = 0);
+//	int	 		 gpioRead(char*, int);
+//	int	 		 gpioRead(int*, int = 0);
+
+//	int			 gpioWrite(const char*, unsigned int);
+//	int			 gpioWrite(int, int = 0);
 
 public:
 
-
-	virtual		~beagleGPIO() = 0;
+	virtual		~beagleGPIO();
 
 	// global object functions
-	virtual int	 pinOpen();
-	virtual void pinClose();
+	virtual int	 openPin(int flags) = 0;
+	virtual void closePin() = 0;
+
+	int			 getPinFD();
+	bool		 isOpen();
 
 	// digital object virtual functions
-	virtual void setDirection(PIN_DIRECTION);
-	virtual void setEdge(PIN_EDGE);
-	virtual void getValue(bool *value);
-	virtual bool getValue();
-	virtual void setValue(bool value);
+	//virtual void setDirection(PIN_DIRECTION) = 0;
+	//virtual void setEdge(PIN_EDGE);
+	//virtual void getValue(bool *value);
+	//virtual bool getValue();
+	//virtual void setValue(bool value);
 
-	virtual void pinSetMux(PIN_MUX, PIN_PULLUP_EN = PULLUP_ENABLED, PIN_PULLUP = PULLDOWN, PIN_DIRECTION = OUTPUT_PIN, PIN_SLEW = FAST_SLEW);
-	virtual int	 pinExport();
-	virtual int  pinUnexport();
+	//virtual void pinSetMux(PIN_MUX, PIN_PULLUP_EN = PULLUP_ENABLED, PIN_PULLUP = PULLDOWN, PIN_DIRECTION = OUTPUT_PIN, PIN_SLEW = FAST_SLEW);
+	//virtual int	pinExport();
+	//virtual int	pinUnexport();
 
 
 	// serial object virtual functions
