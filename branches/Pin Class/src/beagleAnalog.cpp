@@ -2,16 +2,11 @@
  * beagleAnalog.c
  *
  *  Created on: Sep 8, 2013
- *      Author: daniel
+ *      Author: daniel@deathbylogic.com
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <cstdio>
 #include <fcntl.h>
-#include <string.h>
-
-#include <iostream>
 
 #include "beagleGPIO.h"
 #include "beagleAnalog.h"
@@ -25,7 +20,7 @@ using namespace std;
 int beagleAnalog::openPin(const int flags) {
 	char buf[MAX_BUFF];
 
-	if (!isOpen()) {
+	if (!isPinOpen()) {
 		snprintf(buf, sizeof(buf), FS_ANALOG_DIR, _index);
 
 		// Open the file location
@@ -36,7 +31,7 @@ int beagleAnalog::openPin(const int flags) {
 }
 
 void beagleAnalog::closePin() {
-	if (isOpen()) {
+	if (isPinOpen()) {
 		if(gpioClose(_fd) == 0) {
 			_fd = 0;
 		}
@@ -48,7 +43,7 @@ void beagleAnalog::closePin() {
  */
 
 void beagleAnalog::readPin(int *value) {
-	if (isOpen()) {
+	if (isPinOpen()) {
 		// Read the value of pin
 		gpioRead(_fd, value);
 	} else if (openPin(O_RDONLY | O_NONBLOCK) > 0) {
@@ -71,23 +66,23 @@ int beagleAnalog::readPin() {
  * Low level read
  */
 
-int beagleAnalog::gpioRead(int fd, int *value, int base) {
-	int rc;
-	char buf[MAX_BUFF];
-
-	// Seek to beginning
-	lseek(_fd, 0, SEEK_SET);
-
-	// Read value of file
-	if ((rc = read(_fd, buf, sizeof(buf))) < 0) {
-		perror("BeagleIO: Unable to read from file ");
-	} else {
-		*value = strtol(buf, NULL, base);
-	}
-
-	return rc;
-}
-
-int beagleAnalog::gpioRead(int fd, int *value) {
-	return gpioRead(fd, value, 0);
-}
+//int beagleAnalog::gpioRead(int fd, int *value, int base) {
+//	int rc;
+//	char buf[MAX_BUFF];
+//
+//	// Seek to beginning
+//	lseek(fd, 0, SEEK_SET);
+//
+//	// Read value of file
+//	if ((rc = read(fd, buf, sizeof(buf))) < 0) {
+//		perror("BeagleIO: Unable to read from file ");
+//	} else {
+//		*value = strtol(buf, NULL, base);
+//	}
+//
+//	return rc;
+//}
+//
+//int beagleAnalog::gpioRead(int fd, int *value) {
+//	return gpioRead(fd, value, 0);
+//}

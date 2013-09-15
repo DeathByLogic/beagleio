@@ -5,11 +5,9 @@
  *      Author: daniel
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <cstdio>
 #include <fcntl.h>
-#include <string.h>
+#include <cstring>
 
 #include "beagleGPIO.h"
 #include "beagleDigital.h"
@@ -100,10 +98,11 @@ bool beagleDigital::isExported() {
  * Virtual open & close functions from beagleGPIO
  */
 
+// Open pin file and return file descriptor
 int beagleDigital::openPin(const int flags) {
 	char buf[MAX_BUFF];
 
-	if (!isOpen()) {
+	if (!isPinOpen()) {
 		if (_exported == false) {
 			fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id);
 		} else {
@@ -117,8 +116,9 @@ int beagleDigital::openPin(const int flags) {
 	return _fd;
 }
 
+// Close the pin file
 void beagleDigital::closePin() {
-	if (isOpen()) {
+	if (isPinOpen()) {
 		if(gpioClose(_fd) == 0) {
 			_fd = 0;
 		}
@@ -283,89 +283,4 @@ void beagleDigital::writePin(bool value) {
 			//rsync();
 		}
 	}
-}
-
-/*
- * Low Level IO Read
- */
-
-// Read string of length count
-int beagleDigital::gpioRead(int fd, char *str, unsigned int count) {
-	int rc;
-
-	// Read value of file
-	if ((rc = read(fd, str, count)) < 0) {
-		perror("BeagleIO: Unable to read from file ");
-	}
-
-	return rc;
-}
-
-// Read value of base 'base'
-int beagleDigital::gpioRead(int fd, int *value, unsigned int base) {
-	int rc;
-	char buf[MAX_BUFF];
-
-	// Read value of file
-	if ((rc = read(fd, buf, sizeof(buf))) < 0) {
-		perror("BeagleIO: Unable to read from file ");
-	} else {
-		*value = strtol(buf, NULL, base);
-	}
-
-	return rc;
-}
-
-// Read value of base 10
-int beagleDigital::gpioRead(int fd, int *value) {
-	return gpioRead(fd, value, 0);
-}
-
-/*
- * Low Level IO Write
- */
-
-// Write a string str of length count
-int beagleDigital::gpioWrite(int fd, const char *str, unsigned int count) {
-	int rc;
-
-	// Write buffer to file
-	if ((rc = write(fd, str, count)) < 0) {
-		perror("BeagleIO: Unable to write to file ");
-	}
-
-	return rc;
-}
-
-int beagleDigital::gpioWrite(int fd, int value, unsigned int base) {
-	int rc;
-	int buf_length;
-	char buf[MAX_BUFF];
-
-	switch (base) {
-	case 0:
-	case 10:
-		buf_length = snprintf(buf, sizeof(buf), "%d", value);
-
-		break;
-	case 8:
-		buf_length = snprintf(buf, sizeof(buf), "%01o", value);
-
-		break;
-	case 16:
-		buf_length = snprintf(buf, sizeof(buf), "%01x", value);
-
-		break;
-	}
-
-	// Write buffer to file
-	if ((rc = write(fd, buf, buf_length)) < 0) {
-		perror("BeagleIO: Unable to write to file ");
-	}
-
-	return rc;
-}
-
-int beagleDigital::gpioWrite(int fd, int value) {
-	return gpioWrite(fd, value, 0);
 }

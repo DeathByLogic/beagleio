@@ -5,52 +5,29 @@
  *      Author: daniel@deathbylogic.com
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 
 #include "beagleGPIO.h"
 
 using namespace std;
 
 /*
- * Constructor & Destructor
+ * Destructor
  */
 
-//beagleGPIO::beagleGPIO() {
-//	// Do nothing
-//}
-
-//beagleGPIO::beagleGPIO(const char *ID) {
-////	gpio_pins = pins;
-////	gpio_count = count;
-////
-////	for (int i = 0; i < gpio_count; i++) {
-////		gpio_pins[i].exported = false;
-////	}
-////	_pin = pin;
-//
-////	_exported = false;
-//}
 
 beagleGPIO::~beagleGPIO() {
 	// Close the fd pointer if it is open
 	if (_fd > 0) {
 		gpioClose(_fd);
 	}
-
-//	// Unexport all pins
-//	for (int i = 0; i < gpio_count; i++) {
-//		if (gpio_pins[i].exported) {
-//			pinUnexport(i + 1);
-//		}
-//	}
 }
 
 /*
- * Private Functions
+ * Open and close files
  */
 
 int beagleGPIO::gpioOpen(const char *dir, int flags) {
@@ -75,16 +52,108 @@ int beagleGPIO::gpioClose(int fd) {
 	return rc;
 }
 
+/*
+ * Misc support functions
+ */
+
 int beagleGPIO::getPinFD() {
 	return _fd;
 }
 
-bool beagleGPIO::isOpen() {
+bool beagleGPIO::isPinOpen() {
 	if (_fd > 0) {
 		return true;
 	} else {
 		return false;
 	}
+}
+
+/*
+ * Low Level IO Read
+ */
+
+// Read string of length count
+int beagleGPIO::gpioRead(int fd, void *str, unsigned int count) {
+	int rc;
+
+	// Read value of file
+	if ((rc = read(fd, str, count)) < 0) {
+		perror("BeagleIO: Unable to read from file ");
+	}
+
+	return rc;
+}
+
+// Read value of base 'base'
+int beagleGPIO::gpioRead(int fd, int *value, unsigned int base) {
+	int rc;
+	char buf[MAX_BUFF];
+
+	// Seek to beginning
+	lseek(fd, 0, SEEK_SET);
+
+	// Read value of file
+	if ((rc = read(fd, buf, sizeof(buf))) < 0) {
+		perror("BeagleIO: Unable to read from file ");
+	} else {
+		*value = strtol(buf, NULL, base);
+	}
+
+	return rc;
+}
+
+// Read value of base 10
+int beagleGPIO::gpioRead(int fd, int *value) {
+	return gpioRead(fd, value, 0);
+}
+
+/*
+ * Low Level IO Write
+ */
+
+// Write a string str of length count
+int beagleGPIO::gpioWrite(int fd, const void *str, unsigned int count) {
+	int rc;
+
+	// Write buffer to file
+	if ((rc = write(fd, str, count)) < 0) {
+		perror("BeagleIO: Unable to write to file ");
+	}
+
+	return rc;
+}
+
+int beagleGPIO::gpioWrite(int fd, int value, unsigned int base) {
+	int rc;
+	int buf_length;
+	char buf[MAX_BUFF];
+
+	switch (base) {
+	case 0:
+	case 10:
+		buf_length = snprintf(buf, sizeof(buf), "%d", value);
+
+		break;
+	case 8:
+		buf_length = snprintf(buf, sizeof(buf), "%01o", value);
+
+		break;
+	case 16:
+		buf_length = snprintf(buf, sizeof(buf), "%01x", value);
+
+		break;
+	}
+
+	// Write buffer to file
+	if ((rc = write(fd, buf, buf_length)) < 0) {
+		perror("BeagleIO: Unable to write to file ");
+	}
+
+	return rc;
+}
+
+int beagleGPIO::gpioWrite(int fd, int value) {
+	return gpioWrite(fd, value, 0);
 }
 
 /*

@@ -6,9 +6,14 @@
  */
 
 #include <unistd.h>
+#include <iostream>
+#include <typeinfo>
+
 #include "beagleGPIO.h"
-#include "beagleDigital.h"
+//#include "beagleDigital.h"
 #include "beagleSerial.h"
+
+using namespace std;
 
 // I/O Header Pins
 //io_pin P8_pins[46] = {
@@ -123,16 +128,4 @@
 //beagleSerial serial4("/dev/ttyO4");
 //beagleSerial serial5("/dev/ttyO5");
 
-
-
-
-int main() {
-	beagleGPIO * tmp = new beagleDigital("test");
-
-	beagleGPIO **classarray = new beagleGPIO*[2];
-
-	classarray[1] = tmp;
-
-	dynamic_cast<beagleDigital*>(classarray[1])->prnt(25);
-}
 

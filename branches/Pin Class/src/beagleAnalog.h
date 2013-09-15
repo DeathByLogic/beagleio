@@ -18,8 +18,6 @@ private:
 	const int	_index;
 
 protected:
-	int	 		gpioRead(int fd, int *value, int base);
-	int			gpioRead(int fd, int *value);
 
 public:
 				beagleAnalog(const char *id, const int index) : beagleGPIO(id), _index(index) {}
