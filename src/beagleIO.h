@@ -9,9 +9,10 @@
 #define BEAGLEIO_H_
 
 #include "beagleGPIO.h"
+//#include "beagleDigital.h"
 #include "beagleSerial.h"
 
-extern beagleDigital *J8P39;
+//extern beagleDigital *J8P39;
 
 //extern beagleGPIO P8;
 //extern beagleGPIO P9;

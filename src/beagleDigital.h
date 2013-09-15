@@ -40,13 +40,6 @@ private:
 	bool		_exported;
 
 protected:
-	int 		 gpioRead(int fd, char *str, unsigned int count);
-	int			 gpioRead(int fd, int *value, unsigned int base);
-	int			 gpioRead(int fd, int *value);
-
-	int 		 gpioWrite(int fd, const char *str, unsigned int count);
-	int			 gpioWrite(int fd, int value, unsigned int base);
-	int			 gpioWrite(int fd, int value);
 
 public:
 	// Constructor & Deconstructor

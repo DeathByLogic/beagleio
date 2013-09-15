@@ -29,27 +29,34 @@ protected:
 	const char	*_id;
 	int 		 _fd;
 
+	// Constructor
 				 beagleGPIO(const char *id) : _id(id), _fd(0) { }
 
+	// Open and close pin functions
 	int			 gpioOpen(const char* dir, int flags);
 	int			 gpioClose(int fd);
 
-//	int	 		 gpioRead(char*, int);
-//	int	 		 gpioRead(int*, int = 0);
+	// Read from pin file
+	int			 gpioRead(int fd, void *str, unsigned int count);
+	int			 gpioRead(int fd, int *value, unsigned int base);
+	int			 gpioRead(int fd, int *value);
 
-//	int			 gpioWrite(const char*, unsigned int);
-//	int			 gpioWrite(int, int = 0);
+	// Write to pin file
+	int			 gpioWrite(int fd, const void *str, unsigned int count);
+	int			 gpioWrite(int fd, int value, unsigned int base);
+	int			 gpioWrite(int fd, int value);
 
 public:
-
+	// Deconstructor
 	virtual		~beagleGPIO();
 
-	// global object functions
+	// Virtual open and close pin functions
 	virtual int	 openPin(int flags) = 0;
 	virtual void closePin() = 0;
 
+	// Misc Pin functions
 	int			 getPinFD();
-	bool		 isOpen();
+	bool		 isPinOpen();
 
 	// digital object virtual functions
 	//virtual void setDirection(PIN_DIRECTION) = 0;

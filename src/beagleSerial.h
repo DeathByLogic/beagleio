@@ -10,7 +10,13 @@
 
 #include <termios.h>
 
+#include "beagleGPIO.h"
+#include "beagleDigital.h"
+
 using namespace std;
+
+// Terminal Directories
+#define FS_SERIAL_DIR	"/dev/%s"
 
 // Serial configuration constants
 enum BAUD {
@@ -46,21 +52,29 @@ enum STOP_BIT {
 };
 
 // Class definition
-class beagleSerial {
+class beagleSerial: public beagleDigital  {
+private:
+	int			 _tty_fd;
+	const char	*_tty;
+
+protected:
+
 public:
-	beagleSerial(const char*);
-	~beagleSerial();
+	// Constructor & Deconstructor
+				 beagleSerial(const char *id, const int index, const char *tty) : beagleDigital(id, index), _tty(tty) {}
+				~beagleSerial();
 
 	// Serial Functions
-	int		readString(void*, int);
-	int		writeString(const void*, int);
-	void	openPort(BAUD, PARITY_BIT = PB_NONE, BYTE_SIZE = BS_8_BIT, STOP_BIT = SB_ONE);
-	void	closePort();
-	void	configPort(BAUD, PARITY_BIT = PB_NONE, BYTE_SIZE = BS_8_BIT, STOP_BIT = SB_ONE);
+	void		 readPort(void *str, unsigned int count);
+	void		 writePort(const void *str, unsigned int count);
 
-private:
-	int		fd;
-	const char	*tty;
+	int			 openPort(BAUD, PARITY_BIT = PB_NONE, BYTE_SIZE = BS_8_BIT, STOP_BIT = SB_ONE);
+	void		 closePort();
+	void		 configPort(BAUD, PARITY_BIT = PB_NONE, BYTE_SIZE = BS_8_BIT, STOP_BIT = SB_ONE);
+
+	bool		 isPortOpen();
+	int			 getPortFD();
+
 };
 
 #endif /* BEAGLESERIAL_H_ */
