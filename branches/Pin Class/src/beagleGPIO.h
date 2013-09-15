@@ -57,6 +57,9 @@ protected:
 	int			 gpioWrite(int fd, int value, unsigned int base);
 	int			 gpioWrite(int fd, int value);
 
+	// Search in a directory
+	int			 dirSearch(const char *dir, const char *search, char *rtn);
+
 public:
 	// Deconstructor
 	virtual		~beagleGPIO();
