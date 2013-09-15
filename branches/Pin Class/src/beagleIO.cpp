@@ -95,12 +95,12 @@ beagleDigital P9_31("SPI1_SCLK",	110);
 // Pin P9_32 is VDD_ADC
 beagleAnalog  P9_33("AIN4",			"ANI4");
 // Pin P9_34 is GNDA_ADC
-beagleAnalog  P9_35("AIN6",			"ANI6");
-beagleAnalog  P9_36("AIN5",			"ANI5");
-beagleAnalog  P9_37("AIN2",			"ANI2");
-beagleAnalog  P9_38("AIN3",			"ANI3");
-beagleAnalog  P9_39("AIN0",			"ANI0");
-beagleAnalog  P9_40("AIN1",			"ANI1");
+beagleAnalog  P9_35("AIN6",			"AIN6");
+beagleAnalog  P9_36("AIN5",			"AIN5");
+beagleAnalog  P9_37("AIN2",			"AIN2");
+beagleAnalog  P9_38("AIN3",			"AIN3");
+beagleAnalog  P9_39("AIN0",			"AIN0");
+beagleAnalog  P9_40("AIN1",			"AIN1");
 beagleDigital P9_41("CLKOUT2",		20);
 beagleDigital P9_42("GPIO0_7",		7);
 
