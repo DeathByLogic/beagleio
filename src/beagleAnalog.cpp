@@ -1,9 +1,20 @@
 /*
- * beagleAnalog.c
- *
- *  Created on: Sep 8, 2013
- *      Author: daniel@deathbylogic.com
- */
+	Copyright (C) 2013 deathbylogic.com
+	Author: daniel@deathbylogic.com
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <cstdio>
 #include <fcntl.h>
@@ -21,7 +32,7 @@ int beagleAnalog::openPin(const int flags) {
 	char buf[MAX_BUFF];
 
 	if (!isPinOpen()) {
-		snprintf(buf, sizeof(buf), FS_ANALOG_DIR, _index);
+		snprintf(buf, sizeof(buf), FS_ANALOG_DIR, _ani);
 
 		// Open the file location
 		_fd = gpioOpen(buf, flags);
