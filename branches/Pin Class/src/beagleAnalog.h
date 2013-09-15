@@ -19,23 +19,44 @@
 #ifndef BEAGLEANALOG_H_
 #define BEAGLEANALOG_H_
 
+#include <cstring>
+#include <cstdio>
 #include "beagleGPIO.h"
 
 // GPIO Directories
-#define FS_ANALOG_DIR	"/sys/devices/ocp.2/helper.9/%s"
+#define FS_ANALOG_DIR	"/sys/devices"
 
 class beagleAnalog: public beagleGPIO {
 private:
-	const char *_ani;
+	const char 	*_ani;
+	char	 	 _dir[MAX_BUFF];
+
+//	bool		 _ani_found;
 
 protected:
 
 public:
-				beagleAnalog(const char *id, const char *ani) : beagleGPIO(id), _ani(ani) {}
+	// Constructor
+				beagleAnalog(const char *id, const char *ani) : beagleGPIO(id), _ani(ani) {
+					char ocp_dir[MAX_BUFF];
 
+//					if (!_ani_found) {
+						dirSearch(FS_ANALOG_DIR, "ocp", ocp_dir);
+						dirSearch(ocp_dir, "helper", _dir);
+
+						strncat(_dir, "/%s", sizeof(_dir));
+
+//						_ani_found = true;
+
+						perror(_dir);
+//					}
+				}
+
+	// Read pin value functions
 	void 		readPin(int *);
 	int  		readPin();
 
+	// Open and close pin functions
 	int			openPin(const int flags);
 	void		closePin();
 };

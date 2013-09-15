@@ -32,7 +32,7 @@ int beagleAnalog::openPin(const int flags) {
 	char buf[MAX_BUFF];
 
 	if (!isPinOpen()) {
-		snprintf(buf, sizeof(buf), FS_ANALOG_DIR, _ani);
+		snprintf(buf, sizeof(buf), _dir, _ani);
 
 		// Open the file location
 		_fd = gpioOpen(buf, flags);
