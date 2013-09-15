@@ -18,8 +18,10 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <unistd.h>
 #include <fcntl.h>
+#include <dirent.h>
 
 #include "beagleGPIO.h"
 
@@ -35,6 +37,33 @@ beagleGPIO::~beagleGPIO() {
 	if (_fd > 0) {
 		gpioClose(_fd);
 	}
+}
+
+/*
+ * Directory Search
+ */
+
+int	beagleGPIO::dirSearch(const char *dir, const char *search, char *rtn) {
+    DIR *dp;
+    struct dirent *dirp;
+
+    if((dp = opendir(dir)) == NULL) {
+    	perror("BeagleIO: Unable to open directory ");
+    } else {
+		while ((dirp = readdir(dp)) != NULL) {
+			 if (strstr(dirp->d_name, search) > 0) {
+				 sprintf(rtn, "%s/%s", dir, dirp->d_name);
+
+				 closedir(dp);
+
+				 return 0;
+			 }
+		}
+
+		closedir(dp);
+    }
+
+    return -1;
 }
 
 /*
