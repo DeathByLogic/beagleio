@@ -18,6 +18,7 @@
 
 #include <cstdio>
 #include <fcntl.h>
+#include <unistd.h>
 #include <cstring>
 
 #include "beagleGPIO.h"
@@ -246,7 +247,6 @@ int beagleDigital::setEdge(PIN_EDGE edge) {
 
 // Read pin value and write to pointer
 void beagleDigital::readPin(bool *value) {
-	int	rc;
 	int rtn;
 
 	// Export pin if needed
@@ -254,14 +254,26 @@ void beagleDigital::readPin(bool *value) {
 		fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id);
 	} else {
 		// Open the file location
-		if ((rc = openPin(O_RDONLY | O_NONBLOCK)) > 0) {
+		if (isPinOpen()) {
+			// Seek to beginning
+			lseek(_fd, 0, SEEK_SET);
+
 			// Read the value of pin
 			gpioRead(_fd, &rtn);
 
 			*value = (bool)rtn;
 
-			// Close the file location
-			closePin();
+			//*value = (bool)rtn;
+		} else {
+			if (openPin(O_RDONLY | O_NONBLOCK) > 0) {
+				// Read the value of pin
+				gpioRead(_fd, &rtn);
+
+				*value = (bool)rtn;
+
+				// Close the file location
+				closePin();
+			}
 		}
 	}
 }
@@ -282,16 +294,22 @@ void beagleDigital::writePin(bool value) {
 		fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id);
 	} else {
 		// Open the file location
-		if ((rc = openPin(O_WRONLY)) > 0) {
+		if (isPinOpen()) {
 			// Seek to beginning
+			lseek(_fd, 0, SEEK_SET);
 
-			// Write the value of pin
+			// write value to the pin
 			gpioWrite(_fd, value);
+		} else {
+			if ((rc = openPin(O_WRONLY)) > 0) {
+				// Write the value of pin
+				gpioWrite(_fd, value);
 
-			// Close the file location
-			closePin();
+				// Close the file location
+				closePin();
 
-			//rsync();
+				//rsync();
+			}
 		}
 	}
 }
