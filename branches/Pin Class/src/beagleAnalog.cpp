@@ -17,6 +17,7 @@
 */
 
 #include <cstdio>
+#include <unistd.h>
 #include <fcntl.h>
 
 #include "beagleGPIO.h"
@@ -55,6 +56,9 @@ void beagleAnalog::closePin() {
 
 void beagleAnalog::readPin(int *value) {
 	if (isPinOpen()) {
+		// Seek to beginning
+		lseek(_fd, 0, SEEK_SET);
+
 		// Read the value of pin
 		gpioRead(_fd, value);
 	} else if (openPin(O_RDONLY | O_NONBLOCK) > 0) {
