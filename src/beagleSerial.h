@@ -1,16 +1,34 @@
 /*
- * beagleSerial.h
- *
- *  Created on: Mar 29, 2013
- *      Author: daniel@deathbylogic.com
- */
+	Copyright (C) 2013 deathbylogic.com
+	Author: daniel@deathbylogic.com
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef BEAGLESERIAL_H_
 #define BEAGLESERIAL_H_
 
 #include <termios.h>
+#include <string>
+
+#include "beagleGPIO.h"
+#include "beagleDigital.h"
 
 using namespace std;
+
+// Terminal Directories
+#define FS_SERIAL_DIR	"/dev/%s"
 
 // Serial configuration constants
 enum BAUD {
@@ -46,21 +64,29 @@ enum STOP_BIT {
 };
 
 // Class definition
-class beagleSerial {
+class beagleSerial: public beagleDigital  {
+private:
+	int			 _tty_fd;
+	std::string	 _tty;
+
+protected:
+
 public:
-	beagleSerial(const char*);
-	~beagleSerial();
+	// Constructor & Deconstructor
+				 beagleSerial(const std::string &id, const int index, const std::string &tty) : beagleDigital(id, index), _tty_fd(0), _tty(tty) {}
+				~beagleSerial();
 
 	// Serial Functions
-	int		readString(void*, int);
-	int		writeString(const void*, int);
-	void	openPort(BAUD, PARITY_BIT = PB_NONE, BYTE_SIZE = BS_8_BIT, STOP_BIT = SB_ONE);
-	void	closePort();
-	void	configPort(BAUD, PARITY_BIT = PB_NONE, BYTE_SIZE = BS_8_BIT, STOP_BIT = SB_ONE);
+	void		 readPort(void *str, unsigned int count);
+	void		 writePort(const void *str, unsigned int count);
 
-private:
-	int		fd;
-	const char	*tty;
+	int			 openPort(BAUD, PARITY_BIT = PB_NONE, BYTE_SIZE = BS_8_BIT, STOP_BIT = SB_ONE);
+	void		 closePort();
+	void		 configPort(BAUD, PARITY_BIT = PB_NONE, BYTE_SIZE = BS_8_BIT, STOP_BIT = SB_ONE);
+
+	bool		 isPortOpen();
+	int			 getPortFD();
+
 };
 
 #endif /* BEAGLESERIAL_H_ */
