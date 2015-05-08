@@ -19,6 +19,9 @@
 #ifndef BEAGLEGPIO_H_
 #define BEAGLEGPIO_H_
 
+// Includes
+#include <string>
+
 // Structures
 typedef struct io_pin {
 	const char		*ID;
@@ -37,11 +40,11 @@ class beagleGPIO {
 private:
 
 protected:
-	const char	*_id;
+	std::string	 _id;
 	int 		 _fd;
 
 	// Constructor
-				 beagleGPIO(const char *id) : _id(id), _fd(0) { }
+				 beagleGPIO(const std::string &id) : _id(id), _fd(0) { }
 
 	// Open and close pin functions
 	int			 gpioOpen(const char* dir, int flags);

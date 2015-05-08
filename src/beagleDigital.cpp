@@ -58,7 +58,7 @@ int beagleDigital::exportPin() {
 		} else {
 			_exported = true;
 
-			printf("BeagleIO: Exported gpio %d\t(%s)\n", _index, _id);
+			printf("BeagleIO: Exported gpio %d\t(%s)\n", _index, _id.c_str());
 		}
 
 		// Close export file
@@ -89,7 +89,7 @@ int beagleDigital::unexportPin() {
 		} else {
 			_exported =  false;
 
-			printf("BeagleIO: Unexported gpio %d\t(%s)\n", _index, _id);
+			printf("BeagleIO: Unexported gpio %d\t(%s)\n", _index, _id.c_str());
 		}
 
 		// Close File
@@ -116,7 +116,7 @@ int beagleDigital::openPin(const int flags) {
 
 	if (!isPinOpen()) {
 		if (_exported == false) {
-			fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id);
+			fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id.c_str());
 		} else {
 			snprintf(buf, sizeof(buf), FS_VALUE_DIR, _index);
 
@@ -150,7 +150,7 @@ int beagleDigital::setDirection(PIN_DIRECTION direction) {
 	char dir[MAX_BUFF];
 
 	if (_exported == false) {
-		fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id);
+		fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id.c_str());
 
 		return -1;
 	} else {
@@ -196,7 +196,7 @@ int beagleDigital::setEdge(PIN_EDGE edge) {
 	char edg[MAX_BUFF];
 
 	if (_exported == false) {
-		fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id);
+		fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id.c_str());
 
 		return -1;
 	} else {
@@ -251,7 +251,7 @@ void beagleDigital::readPin(bool *value) {
 
 	// Export pin if needed
 	if (_exported == false) {
-		fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id);
+		fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id.c_str());
 	} else {
 		// Open the file location
 		if (isPinOpen()) {
@@ -291,7 +291,7 @@ void beagleDigital::writePin(bool value) {
 	int rc;
 
 	if (_exported == false) {
-		fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id);
+		fprintf(stderr, "BeagleIO: Pin %s has not been exported\n", _id.c_str());
 	} else {
 		// Open the file location
 		if (isPinOpen()) {

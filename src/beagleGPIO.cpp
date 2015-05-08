@@ -25,8 +25,6 @@
 
 #include "beagleGPIO.h"
 
-using namespace std;
-
 /*
  * Destructor
  */

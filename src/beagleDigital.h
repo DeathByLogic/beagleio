@@ -19,6 +19,8 @@
 #ifndef BEAGLEDIGITAL_H_
 #define BEAGLEDIGITAL_H_
 
+#include <string>
+
 #include "beagleGPIO.h"
 
 enum PIN_VALUE {
@@ -54,7 +56,7 @@ protected:
 
 public:
 	// Constructor & Deconstructor
-		 	 	 beagleDigital(const char *id, const int index) : beagleGPIO(id), _index(index), _exported(false) {}
+		 	 	 beagleDigital(const std::string &id, const int index) : beagleGPIO(id), _index(index), _exported(false) {}
 		 	 	~beagleDigital();
 
 	// Pin Open and close functions

@@ -20,6 +20,7 @@
 #define BEAGLESERIAL_H_
 
 #include <termios.h>
+#include <string>
 
 #include "beagleGPIO.h"
 #include "beagleDigital.h"
@@ -66,13 +67,13 @@ enum STOP_BIT {
 class beagleSerial: public beagleDigital  {
 private:
 	int			 _tty_fd;
-	const char	*_tty;
+	std::string	 _tty;
 
 protected:
 
 public:
 	// Constructor & Deconstructor
-				 beagleSerial(const char *id, const int index, const char *tty) : beagleDigital(id, index), _tty(tty) {}
+				 beagleSerial(const std::string &id, const int index, const std::string &tty) : beagleDigital(id, index), _tty_fd(0), _tty(tty) {}
 				~beagleSerial();
 
 	// Serial Functions

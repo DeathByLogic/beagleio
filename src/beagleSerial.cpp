@@ -45,7 +45,7 @@ int beagleSerial::openPort(BAUD baud_rate, PARITY_BIT parity_bit, BYTE_SIZE byte
 
 	// Open the file for read/write
 	if (!isPortOpen()) {
-		snprintf(buf, sizeof(buf), FS_SERIAL_DIR, _tty);
+		snprintf(buf, sizeof(buf), FS_SERIAL_DIR, _tty.c_str());
 
 		if ((_tty_fd = gpioOpen(buf, O_RDWR | O_NOCTTY | O_NDELAY)) > 0) {
 			// Set the port configuration
@@ -144,4 +144,8 @@ void beagleSerial::writePort(const void *str, unsigned int count) {
 			perror("BeagleSerial: Unable to write to port ");
 		}
 	}
+}
+
+int beagleSerial::getPortFD() {
+	return _tty_fd;
 }

@@ -16,13 +16,12 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BEAGLEIO_H_
-#define BEAGLEIO_H_
+#ifndef BEAGLEBLACKIO_H_
+#define BEAGLEBLACKIO_H_
 
 #include "beagleAnalog.h"
 #include "beagleDigital.h"
 #include "beagleSerial.h"
-#include "beagleI2C.h"
 
 /*
  * P8 Header Pins
@@ -83,10 +82,10 @@ extern beagleSerial  P9_13;
 extern beagleDigital P9_14;
 extern beagleDigital P9_15;
 extern beagleDigital P9_16;
-extern beagleI2C     P9_17;
-extern beagleI2C     P9_18;
-extern beagleI2C     P9_19;
-extern beagleI2C     P9_20;
+extern beagleDigital P9_17;
+extern beagleDigital P9_18;
+extern beagleDigital P9_19;
+extern beagleDigital P9_20;
 extern beagleSerial  P9_21;
 extern beagleSerial  P9_22;
 extern beagleDigital P9_23;
@@ -110,4 +109,4 @@ extern beagleAnalog  P9_40;
 extern beagleDigital P9_41;
 extern beagleDigital P9_42;
 
-#endif /* BEAGLEIO_H_ */
+#endif /* BEAGLEBLACKIO_H_ */

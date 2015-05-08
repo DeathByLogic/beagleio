@@ -28,7 +28,7 @@
 
 class beagleAnalog: public beagleGPIO {
 private:
-	const char 	*_ani;
+	std::string  _ani;
 	char	 	 _dir[MAX_BUFF];
 
 //	bool		 _ani_found;
@@ -37,7 +37,7 @@ protected:
 
 public:
 	// Constructor
-				beagleAnalog(const char *id, const char *ani) : beagleGPIO(id), _ani(ani) {
+				beagleAnalog(const std::string &id, const std::string &ani) : beagleGPIO(id), _ani(ani) {
 					char ocp_dir[MAX_BUFF];
 
 //					if (!_ani_found) {
