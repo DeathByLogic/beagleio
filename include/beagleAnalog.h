@@ -41,14 +41,14 @@ public:
 					char ocp_dir[MAX_BUFF];
 
 //					if (!_ani_found) {
-						dirSearch(FS_ANALOG_DIR, "ocp", ocp_dir);
-						dirSearch(ocp_dir, "helper", _dir);
+						//dirSearch(FS_ANALOG_DIR, "ocp", ocp_dir);
+						//dirSearch(ocp_dir, "helper", _dir);
 
-						strncat(_dir, "/%s", sizeof(_dir));
+						//strncat(_dir, "/%s", sizeof(_dir));
 
 //						_ani_found = true;
 
-						perror(_dir);
+						//perror(_dir);
 //					}
 				}
 

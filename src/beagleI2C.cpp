@@ -138,7 +138,7 @@ void beagleI2C::requestFrom(void *str, char address, size_t size, bool consecuti
 		if (openPort(address) > 0) {
 			if (consecutively) {
 				for (unsigned int i = 0; i < size; i++) {
-					readPort(str + i, 1);
+					readPort(((char*)str) + i, 1);
 				}
 			} else {
 				// Read data from device
